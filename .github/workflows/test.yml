@@ -44,8 +44,9 @@ jobs:
           sudo mv migrate.linux-amd64 /usr/bin/migrate
           which migrate
 
-      - name: Run migrations
-        run: make migrateup
+      # TODO: Uncomment the following lines to run migrations when the database is ready
+      # - name: Run migrations
+      #   run: make migrate-up
 
       - name: Run tests
         run: make test
