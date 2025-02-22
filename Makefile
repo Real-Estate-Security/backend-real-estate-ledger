@@ -61,4 +61,13 @@ watch:
             fi; \
         fi
 
-.PHONY: all build run test clean watch docker-run docker-down itest
+sqlc:
+	@sqlc generate
+
+migrate-up:
+	@migrate -path internal/database/migration -database "postgresql://postgres:password@localhost:5432/postgres?sslmode=disable" -verbose up
+
+migrate-down:
+	@migrate -path internal/database/migration -database "postgresql://postgres:password@localhost:5432/postgres?sslmode=disable" -verbose down
+
+.PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down
