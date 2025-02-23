@@ -65,12 +65,12 @@ sqlc:
 
 migrate-up:
 	@migrate -path internal/database/migration \
-			 -database "postgresql://user:password@localhost:8080/secure-real-estate-app?sslmode=disable" \
+			 -database "postgresql://user:password@localhost:5432/secure-real-estate-app?sslmode=disable" \
 			 -verbose up
 
 migrate-down:
 	@migrate -path internal/database/migration \
-			 -database "postgresql://user:password@localhost:8080/secure-real-estate-app?sslmode=disable" \
+			 -database "postgresql://user:password@localhost:5432/secure-real-estate-app?sslmode=disable" \
 			 -verbose down
 
 .PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down
