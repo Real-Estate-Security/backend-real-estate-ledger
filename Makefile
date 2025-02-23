@@ -1,5 +1,5 @@
 # Simple Makefile for a Go project
-
+include .env
 # Build the application
 all: build test
 
@@ -14,11 +14,11 @@ run:
 	@go run cmd/api/main.go
 # Create DB container
 docker-run:
-	@if docker compose up --build 2>/dev/null; then \
+	@if docker compose --env-file .env up --build 2>/dev/null; then \
 		: ; \
 	else \
 		echo "Falling back to Docker Compose V1"; \
-		docker-compose up --build; \
+		docker-compose --env-file .env up --build; \
 	fi
 
 # Shutdown DB container
@@ -65,9 +65,14 @@ sqlc:
 	@sqlc generate
 
 migrate-up:
-	@migrate -path internal/database/migration -database "postgresql://postgres:password@localhost:5432/postgres?sslmode=disable" -verbose up
+	@echo "${LOCAL_DB_USERNAME} + ${LOCAL_DB_PASSWORD} + ${LOCAL_DB_HOST} + ${LOCAL_DB_PORT} + ${LOCAL_DB_DATABASE}"
+	@migrate -path internal/database/migration \
+			 -database "postgresql://${LOCAL_DB_USERNAME}:${LOCAL_DB_PASSWORD}@${LOCAL_DB_HOST}:${LOCAL_DB_PORT}/${LOCAL_DB_DATABASE}?sslmode=disable" \
+			 -verbose up
 
 migrate-down:
-	@migrate -path internal/database/migration -database "postgresql://postgres:password@localhost:5432/postgres?sslmode=disable" -verbose down
+	@migrate -path internal/database/migration \
+			 -database "postgresql://${LOCAL_DB_USERNAME}:${LOCAL_DB_PASSWORD}@${LOCAL_DB_HOST}:${LOCAL_DB_PORT}/${LOCAL_DB_DATABASE}?sslmode=disable" \
+			 -verbose down
 
 .PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down

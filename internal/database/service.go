@@ -13,7 +13,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-// Service represents a service that interacts with a database.
+// Store represents a service that interacts with a database.
 type Service interface {
 	// Health returns a map of health status information.
 	// The keys and values in the map are service-specific.
@@ -25,24 +25,33 @@ type Service interface {
 }
 
 type service struct {
+	*Queries
 	db *sql.DB
 }
 
 var (
-	database   = os.Getenv("BLUEPRINT_DB_DATABASE")
-	password   = os.Getenv("BLUEPRINT_DB_PASSWORD")
-	username   = os.Getenv("BLUEPRINT_DB_USERNAME")
-	port       = os.Getenv("BLUEPRINT_DB_PORT")
-	host       = os.Getenv("BLUEPRINT_DB_HOST")
-	schema     = os.Getenv("BLUEPRINT_DB_SCHEMA")
+	database   = os.Getenv("LOCAL_DB_DATABASE")
+	password   = os.Getenv("LOCAL_DB_PASSWORD")
+	username   = os.Getenv("LOCAL_DB_USERNAME")
+	port       = os.Getenv("LOCAL_DB_PORT")
+	host       = os.Getenv("LOCAL_DB_HOST")
+	schema     = os.Getenv("LOCAL_DB_SCHEMA")
 	dbInstance *service
 )
 
-func New() Service {
+func NewService() Service {
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
 	}
+	// print the variables
+	fmt.Println("username: ", username)
+	fmt.Println("password: ", password)
+	fmt.Println("host: ", host)
+	fmt.Println("port: ", port)
+	fmt.Println("database: ", database)
+	fmt.Println("schema: ", schema)
+	// Connect to the database
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {

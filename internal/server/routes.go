@@ -17,7 +17,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	r.GET("/", s.HelloWorldHandler)
+	r.GET("/hello-world", s.HelloWorldHandler)
 
 	r.GET("/health", s.healthHandler)
 

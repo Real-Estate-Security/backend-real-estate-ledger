@@ -12,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Make](https://www.gnu.org/software/make/)
-- [Golang Migrate]
+- [Golang Migrate] (https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md)
 
 ## MakeFile
 
