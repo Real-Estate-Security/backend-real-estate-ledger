@@ -1,5 +1,4 @@
 # Simple Makefile for a Go project
-include .env
 # Build the application
 all: build test
 
@@ -33,7 +32,7 @@ docker-down:
 # Test the application
 test:
 	@echo "Testing..."
-	@go test ./... -v
+	@go test ./... -v -cover
 # Integrations Tests for the application
 itest:
 	@echo "Running integration tests..."
@@ -65,14 +64,13 @@ sqlc:
 	@sqlc generate
 
 migrate-up:
-	@echo "${LOCAL_DB_USERNAME} + ${LOCAL_DB_PASSWORD} + ${LOCAL_DB_HOST} + ${LOCAL_DB_PORT} + ${LOCAL_DB_DATABASE}"
 	@migrate -path internal/database/migration \
-			 -database "postgresql://${LOCAL_DB_USERNAME}:${LOCAL_DB_PASSWORD}@${LOCAL_DB_HOST}:${LOCAL_DB_PORT}/${LOCAL_DB_DATABASE}?sslmode=disable" \
+			 -database "postgresql://user:password@localhost:8080/secure-real-estate-app?sslmode=disable" \
 			 -verbose up
 
 migrate-down:
 	@migrate -path internal/database/migration \
-			 -database "postgresql://${LOCAL_DB_USERNAME}:${LOCAL_DB_PASSWORD}@${LOCAL_DB_HOST}:${LOCAL_DB_PORT}/${LOCAL_DB_DATABASE}?sslmode=disable" \
+			 -database "postgresql://user:password@localhost:8080/secure-real-estate-app?sslmode=disable" \
 			 -verbose down
 
 .PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down

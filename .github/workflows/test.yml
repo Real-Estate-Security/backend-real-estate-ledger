@@ -16,11 +16,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14-alpine
+        image: postgres:latest
         env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: secret
-          POSTGRES_DB: real_estate_app
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: secure-real-estate-app
         ports:
           - 5432:5432
         options: >-
@@ -45,8 +45,8 @@ jobs:
           which migrate
 
       # TODO: Uncomment the following lines to run migrations when the database is ready
-      # - name: Run migrations
-      #   run: make migrate-up
+      - name: Run migrations
+        run: make migrate-up
 
       - name: Run tests
         run: make test
