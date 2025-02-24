@@ -11,12 +11,13 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/golang/mock/mockgen/model"
 )
 
 // Store represents a service that interacts with a database.
 type Service interface {
 	Querier
-	
+
 	// Health returns a map of health status information.
 	// The keys and values in the map are service-specific.
 	Health() map[string]string
@@ -32,12 +33,12 @@ type service struct {
 }
 
 var (
-	database   = os.Getenv("LOCAL_DB_DATABASE")
-	password   = os.Getenv("LOCAL_DB_PASSWORD")
-	username   = os.Getenv("LOCAL_DB_USERNAME")
-	port       = os.Getenv("LOCAL_DB_PORT")
-	host       = os.Getenv("LOCAL_DB_HOST")
-	schema     = os.Getenv("LOCAL_DB_SCHEMA")
+	database   = os.Getenv("DB_DATABASE")
+	password   = os.Getenv("DB_PASSWORD")
+	username   = os.Getenv("DB_USERNAME")
+	port       = os.Getenv("DB_PORT")
+	host       = os.Getenv("DB_HOST")
+	schema     = os.Getenv("DB_SCHEMA")
 	dbInstance *service
 )
 

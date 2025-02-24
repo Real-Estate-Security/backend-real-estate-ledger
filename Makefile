@@ -43,6 +43,11 @@ clean:
 	@echo "Cleaning..."
 	@rm -f main
 
+# Clear cache
+clear-cache:
+	@echo "Clearing cache..."
+	@go clean -cache
+
 # Live Reload
 watch:
 	@if command -v air > /dev/null; then \
@@ -73,4 +78,9 @@ migrate-down:
 			 -database "postgresql://user:password@localhost:5432/secure-real-estate-app?sslmode=disable" \
 			 -verbose down
 
-.PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down
+mock:
+	@mockgen -destination internal/database/mock/service.go \
+			 backend_real_estate/internal/database \
+			 Service
+
+.PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down mock

@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"testing"
 	"time"
+
 	_ "github.com/lib/pq"
 
 	"github.com/testcontainers/testcontainers-go"
@@ -25,12 +26,6 @@ func runMigration() error {
 	// @migrate -path internal/database/migration \
 	// -database "postgresql://${LOCAL_DB_USERNAME}:${LOCAL_DB_PASSWORD}@${LOCAL_DB_HOST}:${LOCAL_DB_PORT}/${LOCAL_DB_DATABASE}?sslmode=disable" \
 	// -verbose up
-	// print the variables 
-	fmt.Println("username_test: ", username)
-	fmt.Println("password_test: ", password)
-	fmt.Println("host_test: ", host)
-	fmt.Println("port_test: ", port)
-	fmt.Println("database_test: ", database)
 	// run the migration
 	cmd := exec.Command("migrate", "-path", "./migration",
 		"-database", fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable",
@@ -85,13 +80,6 @@ func mustStartPostgresContainer() (func(context.Context, ...testcontainers.Termi
 
 	host = dbHost
 	port = dbPort.Port()
-
-	// Set environment variables for migration tool
-	os.Setenv("LOCAL_DB_HOST", host)
-	os.Setenv("LOCAL_DB_PORT", port)
-	os.Setenv("LOCAL_DB_DATABASE", database)
-	os.Setenv("LOCAL_DB_USERNAME", username)
-	os.Setenv("LOCAL_DB_PASSWORD", password)
 
 	// Run migration after database is up
 	if err := runMigration(); err != nil {
