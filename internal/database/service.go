@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
-	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/golang/mock/mockgen/model"
+	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq"
 )
 
 // Store represents a service that interacts with a database.
@@ -56,12 +56,13 @@ func NewService() Service {
 	// fmt.Println("schema: ", schema)
 	// Connect to the database
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
-	db, err := sql.Open("pgx", connStr)
+	fmt.Println("connStr: ", connStr)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	dbInstance = &service{
-		db: db,
+		db:      db,
 		Queries: New(db),
 	}
 	return dbInstance

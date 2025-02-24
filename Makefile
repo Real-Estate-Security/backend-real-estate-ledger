@@ -2,6 +2,10 @@
 # Build the application
 all: build test
 
+format:
+	@echo "Formatting..."
+	@go fmt ./...
+
 build:
 	@echo "Building..."
 	

@@ -1,9 +1,9 @@
 package token
 
 import (
+	"errors"
 	"fmt"
 	"time"
-	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
 )

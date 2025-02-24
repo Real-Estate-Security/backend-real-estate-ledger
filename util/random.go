@@ -62,6 +62,3 @@ func RandomDOB() time.Time {
 	sec := rand.Int63n(delta) + min
 	return time.Unix(sec, 0)
 }
-
-
-

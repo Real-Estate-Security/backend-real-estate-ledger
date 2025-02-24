@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-
 func createRandomUser(t *testing.T) Users {
 	arg := CreateUserParams{
 		Username:       util.RandomUsername(),
@@ -31,7 +30,7 @@ func createRandomUser(t *testing.T) Users {
 	require.Equal(t, arg.FirstName, user.FirstName)
 	require.Equal(t, arg.LastName, user.LastName)
 	require.Equal(t, arg.Email, user.Email)
-	require.WithinDuration(t, arg.Dob, user.Dob, 23 * time.Hour)
+	require.WithinDuration(t, arg.Dob, user.Dob, 23*time.Hour)
 	require.Equal(t, arg.Role, user.Role)
 
 	require.NotZero(t, user.ID)
@@ -43,7 +42,6 @@ func createRandomUser(t *testing.T) Users {
 func TestCreateUser(t *testing.T) {
 	createRandomUser(t)
 }
-
 
 func TestGetUserByID(t *testing.T) {
 	user1 := createRandomUser(t)
@@ -58,7 +56,7 @@ func TestGetUserByID(t *testing.T) {
 	require.Equal(t, user1.FirstName, user2.FirstName)
 	require.Equal(t, user1.LastName, user2.LastName)
 	require.Equal(t, user1.Email, user2.Email)
-	require.WithinDuration(t, user1.Dob, user2.Dob, 23 * time.Hour)
+	require.WithinDuration(t, user1.Dob, user2.Dob, 23*time.Hour)
 	require.Equal(t, user1.Role, user2.Role)
 	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
 }
@@ -76,7 +74,7 @@ func TestGetUserByUsername(t *testing.T) {
 	require.Equal(t, user1.FirstName, user2.FirstName)
 	require.Equal(t, user1.LastName, user2.LastName)
 	require.Equal(t, user1.Email, user2.Email)
-	require.WithinDuration(t, user1.Dob, user2.Dob, 23 * time.Hour)
+	require.WithinDuration(t, user1.Dob, user2.Dob, 23*time.Hour)
 	require.Equal(t, user1.Role, user2.Role)
 	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
 }
@@ -93,24 +91,23 @@ func TestGetUserByEmail(t *testing.T) {
 	require.Equal(t, user1.FirstName, user2.FirstName)
 	require.Equal(t, user1.LastName, user2.LastName)
 	require.Equal(t, user1.Email, user2.Email)
-	require.WithinDuration(t, user1.Dob, user2.Dob, 23 * time.Hour)
+	require.WithinDuration(t, user1.Dob, user2.Dob, 23*time.Hour)
 	require.Equal(t, user1.Role, user2.Role)
 	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
 }
-
 
 func TestUpdateUser(t *testing.T) {
 	user1 := createRandomUser(t)
 
 	arg := UpdateUserParams{
-		ID:       user1.ID,
-		Username: util.RandomUsername(),
+		ID:             user1.ID,
+		Username:       util.RandomUsername(),
 		HashedPassword: util.RandomPassword(),
-		FirstName: util.RandomString(6),
-		LastName: util.RandomString(6),
-		Email:    util.RandomEmail(),
-		Dob: 	 user1.Dob,
-		Role:    user1.Role,
+		FirstName:      util.RandomString(6),
+		LastName:       util.RandomString(6),
+		Email:          util.RandomEmail(),
+		Dob:            user1.Dob,
+		Role:           user1.Role,
 	}
 
 	user2, err := testQueries.UpdateUser(context.Background(), arg)
@@ -124,11 +121,10 @@ func TestUpdateUser(t *testing.T) {
 	require.Equal(t, arg.FirstName, user2.FirstName)
 	require.Equal(t, arg.LastName, user2.LastName)
 	require.Equal(t, arg.Email, user2.Email)
-	require.WithinDuration(t, user1.Dob, user2.Dob, 23 * time.Hour)
+	require.WithinDuration(t, user1.Dob, user2.Dob, 23*time.Hour)
 	require.Equal(t, user1.Role, user2.Role)
 	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
 }
-
 
 func TestDeleteUser(t *testing.T) {
 	user1 := createRandomUser(t)
@@ -142,7 +138,6 @@ func TestDeleteUser(t *testing.T) {
 	require.Error(t, err)
 	require.Empty(t, user2)
 }
-
 
 func TestListUsers(t *testing.T) {
 	for i := 0; i < 10; i++ {

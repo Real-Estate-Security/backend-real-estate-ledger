@@ -3,39 +3,57 @@ package server
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 
 	"backend_real_estate/internal/database"
+	"backend_real_estate/internal/token"
+	"backend_real_estate/util"
 )
 
 type Server struct {
-	port int
-
-	dbService database.Service
+	config     util.Config
+	tokenMaker token.Maker
+	dbService  database.Service
+	router     *gin.Engine
 }
 
-func NewServer() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
-		port: port,
+func NewHTTPServer(config util.Config, dbService database.Service) (*http.Server, error) {
 
-		dbService: database.NewService(),
+	// Create a new server
+	NewServer, err := NewGinServer(config, dbService)
+
+	if err != nil {
+		return nil, err
 	}
 
 	// Declare Server config
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
-		Handler:      NewServer.RegisterRoutes(),
+		Addr:         fmt.Sprintf(":%s", NewServer.config.Port),
+		Handler:      NewServer.router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	return server
+	return server, nil
 }
 
+func NewGinServer(config util.Config, dbService database.Service) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
+	}
 
+	ginServer := &Server{
+		config:     config,
+		tokenMaker: tokenMaker,
+		dbService:  database.NewService(),
+	}
+
+	ginServer.RegisterRoutes()
+
+	return ginServer, nil
+}

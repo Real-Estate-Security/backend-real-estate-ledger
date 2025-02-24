@@ -11,21 +11,29 @@ func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
 
-func (s *Server) RegisterRoutes() http.Handler {
-	r := gin.Default()
+func (server *Server) RegisterRoutes() {
+	router := gin.Default()
 
-	r.Use(cors.New(cors.Config{
+	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"}, // Add your frontend URL
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	r.GET("/hello-world", s.HelloWorldHandler)
+	// general health check routes
+	router.GET("/hello-world", server.HelloWorldHandler)
+	router.GET("/health", server.healthHandler)
 
-	r.GET("/health", s.healthHandler)
+	// user routes unprotected
+	router.POST("/user/signup", server.CreateUserHandler)
+	router.POST("/user/login", server.LoginUserHandler)
 
-	return r
+	// user routes protected
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes.GET("/user/me", server.UserMeHandler)
+
+	server.router = router
 }
 
 func (s *Server) HelloWorldHandler(c *gin.Context) {
