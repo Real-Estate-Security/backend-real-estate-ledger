@@ -17,8 +17,15 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-var testQueries *Queries
-var testDB *sql.DB
+var (
+	testDB      *sql.DB
+	testQueries *Queries
+	database    string = "database"
+	password    string = "password"
+	username    string = "user"
+	port        string = "5432"
+	host        string = "localhost"
+)
 
 // runMigration executes `make migrate-up` in the test environment
 func runMigration() error {
@@ -43,18 +50,13 @@ func runMigration() error {
 // and returns a function to terminate it.
 // It also runs the migration tool to apply the migrations.
 func mustStartPostgresContainer() (func(context.Context, ...testcontainers.TerminateOption) error, error) {
-	var (
-		dbName = "database"
-		dbPwd  = "password"
-		dbUser = "user"
-	)
 
 	dbContainer, err := postgres.Run(
 		context.Background(),
 		"postgres:latest",
-		postgres.WithDatabase(dbName),
-		postgres.WithUsername(dbUser),
-		postgres.WithPassword(dbPwd),
+		postgres.WithDatabase(database),
+		postgres.WithUsername(username),
+		postgres.WithPassword(password),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
 				WithOccurrence(2).
@@ -63,10 +65,6 @@ func mustStartPostgresContainer() (func(context.Context, ...testcontainers.Termi
 	if err != nil {
 		return nil, err
 	}
-
-	database = dbName
-	password = dbPwd
-	username = dbUser
 
 	dbHost, err := dbContainer.Host(context.Background())
 	if err != nil {
@@ -86,18 +84,6 @@ func mustStartPostgresContainer() (func(context.Context, ...testcontainers.Termi
 		return dbContainer.Terminate, err
 	}
 
-	dbDriver := "postgres"
-	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable",
-		dbUser, dbPwd, dbHost, dbPort.Port(), dbName)
-
-	// Connect to the database
-	testDB, err = sql.Open(dbDriver, dbSource)
-	if err != nil {
-		return dbContainer.Terminate, err
-	}
-
-	testQueries = New(testDB)
-
 	return dbContainer.Terminate, nil
 }
 
@@ -107,6 +93,17 @@ func TestMain(m *testing.M) {
 		log.Fatalf("could not start postgres container: %v", err)
 	}
 
+	dbDriver := "postgres"
+	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable",
+		username, password, host, port, database)
+
+	// Connect to the database
+	testDB, err = sql.Open(dbDriver, dbSource)
+	if err != nil {
+		log.Fatalf("failed to open database connection: %v", err)
+	}
+	testQueries = New(testDB)
+
 	m.Run()
 
 	if teardown != nil && teardown(context.Background()) != nil {
@@ -115,14 +112,14 @@ func TestMain(m *testing.M) {
 }
 
 func TestNew(t *testing.T) {
-	srv := NewService()
+	srv := NewService(testDB)
 	if srv == nil {
 		t.Fatal("New() returned nil")
 	}
 }
 
 func TestHealth(t *testing.T) {
-	srv := NewService()
+	srv := NewService(testDB)
 
 	stats := srv.Health()
 
@@ -140,9 +137,20 @@ func TestHealth(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	srv := NewService()
+	dbDriver := "postgres"
+	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable",
+		username, password, host, port, database)
 
-	if srv.Close() != nil {
+	// Connect to the database
+	testCloseDB, err := sql.Open(dbDriver, dbSource)
+
+	if err != nil {
+		t.Fatalf("failed to open database connection: %v", err)
+	}
+
+	testCloseSvc := NewService(testCloseDB)
+
+	if testCloseSvc.Close() != nil {
 		t.Fatalf("expected Close() to return nil")
 	}
 }

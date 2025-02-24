@@ -50,7 +50,7 @@ func NewGinServer(config util.Config, dbService database.Service) (*Server, erro
 	ginServer := &Server{
 		config:     config,
 		tokenMaker: tokenMaker,
-		dbService:  database.NewService(),
+		dbService:  dbService,
 	}
 
 	ginServer.RegisterRoutes()

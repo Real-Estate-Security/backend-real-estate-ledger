@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -52,8 +53,14 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
+	// connect to the database
+
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbDatabase, config.DbSchema)
+
+	dbConn, err := sql.Open("postgres", connStr)
+
 	// TODO: get db from config
-	httpServer, err := server.NewHTTPServer(config, database.NewService())
+	httpServer, err := server.NewHTTPServer(config, database.NewService(dbConn))
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create server")
