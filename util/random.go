@@ -41,6 +41,13 @@ func RandomEmail() string {
 	return RandomString(6) + "@" + RandomString(3) + ".com"
 }
 
+// RandomRole generates a random role
+func RandomRole() string {
+	roles := []string{"user", "agent"}
+	n := len(roles)
+	return roles[rand.Intn(n)]
+}
+
 // RandomPassword generates a random password
 func RandomPassword() string {
 	return RandomString(10)

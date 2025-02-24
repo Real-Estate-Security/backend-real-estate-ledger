@@ -160,7 +160,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Users
+	items := []Users{}
 	for rows.Next() {
 		var i Users
 		if err := rows.Scan(

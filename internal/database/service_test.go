@@ -44,6 +44,9 @@ func runMigration() error {
 	return nil
 }
 
+// mustStartPostgresContainer starts a new postgres container for integration testing
+// and returns a function to terminate it.
+// It also runs the migration tool to apply the migrations.
 func mustStartPostgresContainer() (func(context.Context, ...testcontainers.TerminateOption) error, error) {
 	var (
 		dbName = "database"

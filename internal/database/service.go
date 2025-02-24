@@ -15,6 +15,8 @@ import (
 
 // Store represents a service that interacts with a database.
 type Service interface {
+	Querier
+	
 	// Health returns a map of health status information.
 	// The keys and values in the map are service-specific.
 	Health() map[string]string
@@ -45,12 +47,12 @@ func NewService() Service {
 		return dbInstance
 	}
 	// print the variables
-	fmt.Println("username: ", username)
-	fmt.Println("password: ", password)
-	fmt.Println("host: ", host)
-	fmt.Println("port: ", port)
-	fmt.Println("database: ", database)
-	fmt.Println("schema: ", schema)
+	// fmt.Println("username: ", username)
+	// fmt.Println("password: ", password)
+	// fmt.Println("host: ", host)
+	// fmt.Println("port: ", port)
+	// fmt.Println("database: ", database)
+	// fmt.Println("schema: ", schema)
 	// Connect to the database
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
 	db, err := sql.Open("pgx", connStr)
@@ -59,6 +61,7 @@ func NewService() Service {
 	}
 	dbInstance = &service{
 		db: db,
+		Queries: New(db),
 	}
 	return dbInstance
 }
