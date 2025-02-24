@@ -1,0 +1,171 @@
+definitions:
+  server.createUserRequest:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        enum:
+        - user
+        - agent
+        type: string
+      username:
+        type: string
+    required:
+    - dob
+    - role
+    type: object
+  server.loginUserRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  server.loginUserResponse:
+    properties:
+      access_token:
+        type: string
+      user:
+        $ref: '#/definitions/server.userResponse'
+    type: object
+  server.userMeResponse:
+    properties:
+      user:
+        $ref: '#/definitions/server.userResponse'
+    type: object
+  server.userResponse:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /example/helloworld:
+    get:
+      consumes:
+      - application/json
+      description: HelloWorld example
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: HelloWorld example
+      tags:
+      - example
+  /health:
+    get:
+      description: Returns the health status of the server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health Check
+      tags:
+      - health
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns an access token along with user
+        details.
+      parameters:
+      - description: Login request
+        in: body
+        name: loginUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.loginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            $ref: '#/definitions/server.loginUserResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: User login
+      tags:
+      - users
+  /user/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the information of the authenticated user based on the
+        authorization token provided.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved user information
+          schema:
+            $ref: '#/definitions/server.userMeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      summary: Get authenticated user information
+      tags:
+      - user
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the provided details
+      parameters:
+      - description: Create User Request
+        in: body
+        name: createUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a new user
+      tags:
+      - users
+swagger: "2.0"

@@ -3,14 +3,31 @@ package server
 import (
 	"net/http"
 
+	docs "backend_real_estate/docs/api"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
 
+// @title Secure Real Estate Ledger Backend API
+// @version 1.0
+// @description This is the backend API for the Secure Real Estate Ledger application.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name malik{lastname}5@gmail.com
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @BasePath /v1
 func (server *Server) RegisterRoutes() {
 	router := gin.Default()
 
@@ -21,7 +38,10 @@ func (server *Server) RegisterRoutes() {
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
+	docs.SwaggerInfo.BasePath = "/api/v1"
+
 	// general health check routes
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router.GET("/hello-world", server.HelloWorldHandler)
 	router.GET("/health", server.healthHandler)
 
@@ -36,6 +56,15 @@ func (server *Server) RegisterRoutes() {
 	server.router = router
 }
 
+// HelloWorld godoc
+// @Summary HelloWorld example
+// @Schemes
+// @Description HelloWorld example
+// @Tags example
+// @Accept json
+// @Produce json
+// @Success 200 {string} Helloworld
+// @Router /example/helloworld [get]
 func (s *Server) HelloWorldHandler(c *gin.Context) {
 	resp := make(map[string]string)
 	resp["message"] = "Hello World"
@@ -43,6 +72,13 @@ func (s *Server) HelloWorldHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// healthHandler godoc
+// @Summary Health Check
+// @Description Returns the health status of the server
+// @Tags health
+// @Produce json
+// @Success 200 {object} string
+// @Router /health [get]
 func (s *Server) healthHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, s.dbService.Health())
 }

@@ -33,6 +33,18 @@ func createUserResponse(user database.Users) userResponse {
 	}
 }
 
+// CreateUserHandler handles the creation of a new user.
+//
+// @Summary Create a new user
+// @Description Create a new user with the provided details
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param createUserRequest body createUserRequest true "Create User Request"
+// @Success 200 {object} userResponse
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /users [post]
 func (s *Server) CreateUserHandler(c *gin.Context) {
 	var req createUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -75,6 +87,19 @@ type loginUserResponse struct {
 	User        userResponse `json:"user"`
 }
 
+// LoginUserHandler handles the user login process.
+//
+// @Summary User login
+// @Description Authenticates a user and returns an access token along with user details.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param loginUserRequest body loginUserRequest true "Login request"
+// @Success 200 {object} loginUserResponse "Successful login"
+// @Failure 400 {object} string "Invalid request"
+// @Failure 401 {object} string "Unauthorized"
+// @Failure 500 {object} string "Internal server error"
+// @Router /login [post]
 func (s *Server) LoginUserHandler(c *gin.Context) {
 	var req loginUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -111,6 +136,16 @@ type userMeResponse struct {
 	User userResponse `json:"user"`
 }
 
+// UserMeHandler handles the request to retrieve the authenticated user's information.
+//
+// @Summary Get authenticated user information
+// @Description Retrieves the information of the authenticated user based on the authorization token provided.
+// @Tags user
+// @Accept json
+// @Produce json
+// @Success 200 {object} userMeResponse "Successfully retrieved user information"
+// @Failure 401 {object} string "Unauthorized"
+// @Router /user/me [get]
 func (s *Server) UserMeHandler(c *gin.Context) {
 	// get authorization payload
 	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
