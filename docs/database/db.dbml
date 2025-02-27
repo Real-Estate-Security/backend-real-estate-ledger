@@ -1,0 +1,75 @@
+Project real_estate_ledger_db {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Database Schema for Real Estate Ledger Backend API
+  '''
+}
+
+Enum UserRole {
+  buyer       // Regular user looking for a property
+  agent       // Licensed real estate agent
+  admin       // System administrator
+}
+
+Table users as U {
+  id bigserial [pk]
+  username varchar [unique, not null]
+  hashed_password varchar [not null]
+  password_updated timestamptz [not null, default: `now()`]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique, not null]
+  dob timestamp [not null, default: `0001-01-01 00:00:00Z`]
+  created_at timestamptz [not null, default: `now()`] // When the user was created
+  role UserRole [not null, default: 'buyer'] // Determines if the user is an agent or a buyer
+}
+
+Table properties {
+  id bigserial [pk]
+  owner bigserial [ref: > U.id, not null] // Property owner
+  address varchar [not null]
+  city varchar [not null]
+  state varchar [not null]
+  zipcode int [not null]
+  bedrooms int [not null] // Number of bedrooms in the property
+  bathrooms int [not null] // Number of bathrooms in the property
+}
+
+Table listings {
+  id bigserial [pk]
+  property_id bigserial [ref: > properties.id, not null]
+  agent_id bigserial [ref: > U.id, not null]
+  price decimal(12,2) [not null] // Listing price of the property
+  listing_status varchar [not null, default: 'active'] // active, pending, sold, withdrawn
+  listing_date timestamptz [not null, default: `now()`] // Date when the listing was created
+  description text // Additional details about the property
+  accepted_bid_id bigserial [ref: > bids.id, unique] // Only one accepted bid
+}
+
+Enum BidStatus {
+  pending    // Initial state when a bid is placed
+  accepted   // Bid that has been accepted by the seller
+  rejected   // Bid that has been rejected by the seller
+  countered  // A counteroffer made by the seller
+}
+
+Table bids {
+  id bigserial [pk]
+  listing_id bigserial [ref: > listings.id, not null] // Property being bid on
+  buyer_id bigserial [ref: > U.id, not null] // User making the bid
+  agent_id bigserial [ref: > U.id, not null] // Agent representing buyer
+  amount decimal(12,2) [not null] // Bid amount
+  status BidStatus [not null, default: 'pending'] // Enum for bid status
+  created_at timestamptz [not null, default: `now()`] // Timestamp when the bid was made
+  previous_bid_id bigserial [ref: > bids.id] // Tracks counteroffers
+}
+
+Table representations {
+  id bigserial [pk]
+  user_id bigserial [ref: > U.id, not null, note: "Buyer being represented"]
+  agent_id bigserial [ref: > U.id, not null, note: "Real estate agent representing the buyer"]
+  start_date timestamptz [not null, default: `now()`, note: "Date when representation started"]
+  end_date timestamptz [note: "Date when representation ended, null if still active"]
+  is_active boolean [not null, default: true, note: "Whether the representation is currently active"]
+}
+
