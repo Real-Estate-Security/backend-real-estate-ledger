@@ -29,5 +29,7 @@ EXPOSE 8080
 
 # now run "make air"
 CMD ["make", "watch"]
+ENTRYPOINT [ "executable" ]
+
 
 

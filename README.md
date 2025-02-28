@@ -195,8 +195,8 @@ For any questions, contact:
 
 - [GitHub Issues](https://github.com/Real-Estate-Security/backend-real-estate-ledger/issues)
 - Contributors:
-  - @malikrawashdeh: Malik Rawashdeh
-  - @cj24787: Caroline Jia
-  - @mahikaperi: Mahika Peri
-  - @saraha245: Sarah Ahmed
-  - @briancoco: Brian Nguyen
+  - @malikrawashdeh : Malik Rawashdeh
+  - @cj24787 : Caroline Jia
+  - @mahikaperi : Mahika Peri
+  - @saraha245 : Sarah Ahmed
+  - @briancoco : Brian Nguyen
