@@ -15,13 +15,18 @@ build:
 # Run the application
 run:
 	@go run cmd/api/main.go
+
+
+docker-run-db:
+	@docker-compose up dev-db-real-estate-backend
+
 # Create DB container
 docker-run:
-	@if docker compose --env-file .env up --build 2>/dev/null; then \
+	@if docker compose --env-file app.env up --build 2>/dev/null; then \
 		: ; \
 	else \
 		echo "Falling back to Docker Compose V1"; \
-		docker-compose --env-file .env up --build; \
+		docker-compose --env-file app.env up --build; \
 	fi
 
 # Shutdown DB container

@@ -19,17 +19,19 @@ RUN go mod download
 # Copy everything from the current directory to the PWD(Present Working Directory) inside the container
 COPY . .
 
+RUN chmod +x /app/start.sh
+RUN chmod +x /app/wait-for.sh
+
 # this is for migrations but will prb rm soon bc i want to use go-migrate in code
 # RUN apk add curl
 
 # RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
 
-
 EXPOSE 8080
 
 # now run "make air"
-CMD ["make", "watch"]
-ENTRYPOINT [ "executable" ]
+CMD ["/app/main"]
+ENTRYPOINT [ "/app/start.sh" ]
 
 
 

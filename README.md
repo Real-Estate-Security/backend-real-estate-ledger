@@ -1,5 +1,9 @@
 # Real Estate Transaction Ledger Backend
 
+## Development Setup and Information
+
+Please refer to the [DEVELOPMENT.md](DEVELOPMENT.md) file for detailed instructions on setting up the development environment and running the application.
+
 ## Project Title and Description
 
 The **Real Estate Transaction Ledger Backend** is a Go Gin server that implements REST API routes for a real estate transaction ledger. The backend communicates with a Hyperledger Fabric network to commit transaction data, enabling a secure and transparent system for managing real estate transactions.
@@ -13,6 +17,7 @@ The **Real Estate Transaction Ledger Backend** is a Go Gin server that implement
 ## Table of Contents
 
 - [Real Estate Transaction Ledger Backend](#real-estate-transaction-ledger-backend)
+  - [Development Setup and Information](#development-setup-and-information)
   - [Project Title and Description](#project-title-and-description)
   - [Archetecture and Design](#archetecture-and-design)
   - [Table of Contents](#table-of-contents)

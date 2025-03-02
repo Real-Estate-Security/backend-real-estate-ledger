@@ -1,5 +1,5 @@
 services:
-  dev-db-real-estate-backend:
+  dev-db-postgres:
     image: postgres:latest
     restart: unless-stopped
     environment:
@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - dev-db-real-estate-backend:/var/lib/postgresql/data
+      - dev-db-postgres:/var/lib/postgresql/data
   dev-real-estate-backend:
     container_name: dev-real-estate-backend
     build:
@@ -20,7 +20,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_URL=postgres://user:password@dev-db-real-estate-backend:5432/secure-real-estate-app
+      - DATABASE_URL=postgres://user:password@dev-db-postgres:5432/secure-real-estate-app
       - PORT=8080
       - APP_ENV=local
       - DB_HOST=localhost
@@ -33,11 +33,12 @@ services:
       - ACCESS_TOKEN_DURATION=15m
       - REFRESH_TOKEN_DURATION=24h
     depends_on:
-      - dev-db-real-estate-backend
+      - dev-db-postgres
+    entrypoint:
+      ["/app/wait-for.sh", "dev-db-postgres:5432", "--", "/app/start.sh"]
     restart: unless-stopped
     # the service should run make watch
-    command: >
-      sh -c "make watch"
+    command: ["make", "watch"]
 
 volumes:
-  dev-db-real-estate-backend: {}
+  dev-db-postgres: {}

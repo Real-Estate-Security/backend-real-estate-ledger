@@ -17,6 +17,7 @@ type Config struct {
 	DbUsername           string        `mapstructure:"DB_USERNAME"`
 	DbPassword           string        `mapstructure:"DB_PASSWORD"`
 	DbSchema             string        `mapstructure:"DB_SCHEMA"`
+	MigrationUrl         string        `mapstructure:"MIGRATION_URL"`
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`

@@ -10,6 +10,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/golang-migrate/migrate/v4/source/github"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -42,6 +47,24 @@ func gracefulShutdown(httpServer *http.Server, done chan bool) {
 	done <- true
 }
 
+func runDBMigrations(migrationUrl string, dbSource string) {
+	m, err := migrate.New(migrationUrl, dbSource)
+
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create migration")
+	}
+
+	if err := m.Up(); err != nil {
+		if err.Error() == "no change" {
+			log.Info().Msg("No migration needed")
+		} else {
+			log.Fatal().Err(err).Msg("Failed to run migration")
+		}
+	}
+
+	log.Info().Msg("Migration complete")
+}
+
 func main() {
 
 	config, err := util.LoadConfig(".")
@@ -59,7 +82,12 @@ func main() {
 
 	dbConn, err := sql.Open("postgres", connStr)
 
-	// TODO: get db from config
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to connect to database")
+	}
+
+	runDBMigrations(config.MigrationUrl, connStr)
+
 	httpServer, err := server.NewHTTPServer(config, database.NewService(dbConn))
 
 	if err != nil {
