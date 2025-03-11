@@ -11,13 +11,16 @@ RUN apk add --no-cache make
 RUN go install github.com/air-verse/air@latest
 
 # in production we will only copy go binary files but for now this is fine
-COPY go.* ./
+# COPY go.* ./
 
-# in prod we build
-RUN go mod download
+
 
 # Copy everything from the current directory to the PWD(Present Working Directory) inside the container
 COPY . .
+
+
+# in prod we build
+RUN go mod download
 
 RUN chmod +x /app/start.sh
 RUN chmod +x /app/wait-for.sh

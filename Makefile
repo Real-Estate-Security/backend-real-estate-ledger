@@ -18,7 +18,7 @@ run:
 
 
 docker-run-db:
-	@docker-compose up dev-db-real-estate-backend
+	@docker-compose up dev-db-postgres
 
 # Create DB container
 docker-run:
@@ -91,5 +91,8 @@ mock:
 	@mockgen -destination internal/database/mock/service.go \
 			 backend_real_estate/internal/database \
 			 Service
+
+swagger-gen:
+	@swag init -g ./cmd/api/main.go docs/api 
 
 .PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down mock
