@@ -11,25 +11,31 @@ import (
 )
 
 type createUserRequest struct {
-	Username string    `json:"username"`
-	Password string    `json:"password"`
-	Email    string    `json:"email"`
-	Dob      time.Time `json:"dob" binding:"required" validate:"datetime=2006-01-02"`
-	Role     string    `json:"role" binding:"required" validate:"oneof=user agent"`
+	Username  string    `json:"username" binding:"required,alphanum"`
+	FirstName string    `json:"first_name" binding:"required"`
+	LastName  string    `json:"last_name" binding:"required"`
+	Password  string    `json:"password" binding:"required,min=6"`
+	Email     string    `json:"email" binding:"required,email"`
+	Dob       time.Time `json:"dob" binding:"required" validate:"datetime=2006-01-02"`
+	Role      string    `json:"role" binding:"required" validate:"oneof=user agent"`
 }
 type userResponse struct {
-	Username string    `json:"username"`
-	Email    string    `json:"email"`
-	Dob      time.Time `json:"dob"`
-	Role     string    `json:"role"`
+	Username  string    `json:"username" binding:"required,alphanum"`
+	FirstName string    `json:"first_name" binding:"required"`
+	LastName  string    `json:"last_name" binding:"required"`
+	Email     string    `json:"email" binding:"required,email"`
+	Dob       time.Time `json:"dob" binding:"required" validate:"datetime=2006-01-02"`
+	Role      string    `json:"role" binding:"required" validate:"oneof=user agent"`
 }
 
 func createUserResponse(user database.Users) userResponse {
 	return userResponse{
-		Username: user.Username,
-		Email:    user.Email,
-		Dob:      user.Dob,
-		Role:     string(user.Role),
+		Username:  user.Username,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Dob:       user.Dob,
+		Role:      string(user.Role),
 	}
 }
 
@@ -44,7 +50,7 @@ func createUserResponse(user database.Users) userResponse {
 // @Success 200 {object} userResponse
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /users [post]
+// @Router /user/signup [post]
 func (s *Server) CreateUserHandler(c *gin.Context) {
 	var req createUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -60,6 +66,8 @@ func (s *Server) CreateUserHandler(c *gin.Context) {
 
 	arg := database.CreateUserParams{
 		Username:       req.Username,
+		FirstName:      req.FirstName,
+		LastName:       req.LastName,
 		HashedPassword: hashedPassword,
 		Email:          req.Email,
 		Dob:            req.Dob,
@@ -99,7 +107,7 @@ type loginUserResponse struct {
 // @Failure 400 {object} string "Invalid request"
 // @Failure 401 {object} string "Unauthorized"
 // @Failure 500 {object} string "Internal server error"
-// @Router /login [post]
+// @Router /user/login [post]
 func (s *Server) LoginUserHandler(c *gin.Context) {
 	var req loginUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

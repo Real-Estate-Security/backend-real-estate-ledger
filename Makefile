@@ -93,6 +93,6 @@ mock:
 			 Service
 
 swagger-gen:
-	@swag init -g ./cmd/api/main.go docs/api 
+	@swag init -g ./cmd/api/main.go -o ./docs/api
 
-.PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down mock
+.PHONY: all build run test clean watch docker-run docker-down itest sqlc migrate-up migrate-down mock swagger-gen

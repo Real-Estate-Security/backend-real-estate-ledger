@@ -5,7 +5,12 @@ definitions:
         type: string
       email:
         type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
       password:
+        minLength: 6
         type: string
       role:
         enum:
@@ -16,7 +21,12 @@ definitions:
         type: string
     required:
     - dob
+    - email
+    - first_name
+    - last_name
+    - password
     - role
+    - username
     type: object
   server.loginUserRequest:
     properties:
@@ -47,10 +57,24 @@ definitions:
         type: string
       email:
         type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
       role:
+        enum:
+        - user
+        - agent
         type: string
       username:
         type: string
+    required:
+    - dob
+    - email
+    - first_name
+    - last_name
+    - role
+    - username
     type: object
 info:
   contact: {}
@@ -83,7 +107,7 @@ paths:
       summary: Health Check
       tags:
       - health
-  /login:
+  /user/login:
     post:
       consumes:
       - application/json
@@ -138,7 +162,7 @@ paths:
       summary: Get authenticated user information
       tags:
       - user
-  /users:
+  /user/signup:
     post:
       consumes:
       - application/json

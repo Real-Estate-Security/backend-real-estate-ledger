@@ -33,6 +33,10 @@ A clear and concise description of the feature and the problem it solves.
 - **Integration Tests:** [API endpoints, DB interactions]
 - **Manual Testing:** [Steps to verify functionality]
 
+## 📷 Screenshots (if applicable)
+
+[Attach before & after screenshots]
+
 ## 📷 UI/UX (if applicable)
 
 [Attach Figma links, wireframes, or mockups]

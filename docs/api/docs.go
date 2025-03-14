@@ -58,7 +58,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
+        "/user/login": {
             "post": {
                 "description": "Authenticates a user and returns an access token along with user details.",
                 "consumes": [
@@ -139,7 +139,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/user/signup": {
             "post": {
                 "description": "Create a new user with the provided details",
                 "consumes": [
@@ -191,7 +191,12 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "dob",
-                "role"
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "role",
+                "username"
             ],
             "properties": {
                 "dob": {
@@ -200,8 +205,15 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "password": {
+                "first_name": {
                     "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
                 },
                 "role": {
                     "type": "string",
@@ -252,6 +264,14 @@ const docTemplate = `{
         },
         "server.userResponse": {
             "type": "object",
+            "required": [
+                "dob",
+                "email",
+                "first_name",
+                "last_name",
+                "role",
+                "username"
+            ],
             "properties": {
                 "dob": {
                     "type": "string"
@@ -259,8 +279,18 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "role": {
+                "first_name": {
                     "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "agent"
+                    ]
                 },
                 "username": {
                     "type": "string"
