@@ -45,6 +45,13 @@ func (server *Server) RegisterRoutes() {
 	router.GET("/hello-world", server.HelloWorldHandler)
 	router.GET("/health", server.healthHandler)
 
+	//ledger routes
+	router.GET("/properties", server.GetAllProperties)
+	router.POST("/properties", server.RegisterProperty)
+	router.POST("/properties/list/:id", server.ListProperty)
+	router.POST("/properties/bid/:id", server.PlaceBid)
+	router.DELETE("/properties/bid/:propertyID/:bidID", server.RejectBid)
+
 	// user routes unprotected
 	router.POST("/user/signup", server.CreateUserHandler)
 	router.POST("/user/login", server.LoginUserHandler)
