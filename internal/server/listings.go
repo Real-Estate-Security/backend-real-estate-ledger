@@ -17,7 +17,7 @@ type listingResponse struct {
 	ID            int64     `json:"ID" binding:"required"`
 	PropertyID    int64     `json:"PropertyID" binding:"required"`
 	AgentID       int64     `json:"AgentID" binding:"required"`
-	Price         float64   `json:"Price" binding:"required"`
+	Price         string   `json:"Price" binding:"required"`
 	ListingStatus string    `json:"ListingStatus" binding:"required"`
 	ListingDate   time.Time `json:"ListingDate" binding:"required"`
 	Description   string    `json:"Description" binding:"required"`
@@ -29,11 +29,21 @@ func getListingResponse(currentListing database.Listings) listingResponse {
 		ID:            currentListing.ID,
 		PropertyID:    currentListing.PropertyID,
 		AgentID:       currentListing.AgentID,
-		Price:         float64(currentListing.Price),
+		Price:         currentListing.Price,
 		ListingStatus: currentListing.ListingStatus,
 		ListingDate:   currentListing.ListingDate,
-		Description:   currentListing.Description,
-		AcceptedBidID: currentListing.AcceptedBidID,
+		Description:   func() string {
+			if currentListing.Description.Valid {
+				return currentListing.Description.String
+			}
+			return "" // or another default value
+		}(),
+		AcceptedBidID: func() int64 {
+			if currentListing.AcceptedBidID.Valid {
+				return currentListing.AcceptedBidID.Int64
+			}
+			return 0 // or another default value
+		}(),
 	}
 }
 
