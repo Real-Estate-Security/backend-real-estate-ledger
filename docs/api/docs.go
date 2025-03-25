@@ -58,6 +58,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/property/getPriorityByID": {
+            "post": {
+                "description": "get property by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "property"
+                ],
+                "summary": "get property by id",
+                "parameters": [
+                    {
+                        "description": "get property by id",
+                        "name": "getPropertyByIDRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.getPropertyByIDRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.propertyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/login": {
             "post": {
                 "description": "Authenticates a user and returns an access token along with user details.",
@@ -227,6 +273,21 @@ const docTemplate = `{
                 }
             }
         },
+        "server.getPropertyByIDRequest": {
+            "type": "object",
+            "required": [
+                "PropertyID",
+                "Username"
+            ],
+            "properties": {
+                "PropertyID": {
+                    "type": "integer"
+                },
+                "Username": {
+                    "type": "string"
+                }
+            }
+        },
         "server.loginUserRequest": {
             "type": "object",
             "required": [
@@ -251,6 +312,45 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/server.userResponse"
+                }
+            }
+        },
+        "server.propertyResponse": {
+            "type": "object",
+            "required": [
+                "Address",
+                "City",
+                "ID",
+                "NumOfBathrooms",
+                "NumOfBedrooms",
+                "Owner",
+                "State",
+                "ZipCode"
+            ],
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "City": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "NumOfBathrooms": {
+                    "type": "integer"
+                },
+                "NumOfBedrooms": {
+                    "type": "integer"
+                },
+                "Owner": {
+                    "type": "integer"
+                },
+                "State": {
+                    "type": "string"
+                },
+                "ZipCode": {
+                    "type": "integer"
                 }
             }
         },

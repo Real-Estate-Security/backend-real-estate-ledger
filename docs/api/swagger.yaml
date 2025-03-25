@@ -28,6 +28,16 @@ definitions:
     - role
     - username
     type: object
+  server.getPropertyByIDRequest:
+    properties:
+      PropertyID:
+        type: integer
+      Username:
+        type: string
+    required:
+    - PropertyID
+    - Username
+    type: object
   server.loginUserRequest:
     properties:
       password:
@@ -45,6 +55,34 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/server.userResponse'
+    type: object
+  server.propertyResponse:
+    properties:
+      Address:
+        type: string
+      City:
+        type: string
+      ID:
+        type: integer
+      NumOfBathrooms:
+        type: integer
+      NumOfBedrooms:
+        type: integer
+      Owner:
+        type: integer
+      State:
+        type: string
+      ZipCode:
+        type: integer
+    required:
+    - Address
+    - City
+    - ID
+    - NumOfBathrooms
+    - NumOfBedrooms
+    - Owner
+    - State
+    - ZipCode
     type: object
   server.userMeResponse:
     properties:
@@ -107,6 +145,36 @@ paths:
       summary: Health Check
       tags:
       - health
+  /property/getPriorityByID:
+    post:
+      consumes:
+      - application/json
+      description: get property by id
+      parameters:
+      - description: get property by id
+        in: body
+        name: getPropertyByIDRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.getPropertyByIDRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.propertyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: get property by id
+      tags:
+      - property
   /user/login:
     post:
       consumes:
