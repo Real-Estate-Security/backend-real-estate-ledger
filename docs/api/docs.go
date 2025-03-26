@@ -58,6 +58,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/listing/getListingByPropertyID": {
+            "post": {
+                "description": "get listing by property id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "listing"
+                ],
+                "summary": "get listing by property id",
+                "parameters": [
+                    {
+                        "description": "get listig by property id",
+                        "name": "getListingByIDRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.getListingByIDRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.listingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/property/getPriorityByID": {
             "post": {
                 "description": "get property by id",
@@ -273,6 +319,21 @@ const docTemplate = `{
                 }
             }
         },
+        "server.getListingByIDRequest": {
+            "type": "object",
+            "required": [
+                "PropertyID",
+                "Username"
+            ],
+            "properties": {
+                "PropertyID": {
+                    "type": "integer"
+                },
+                "Username": {
+                    "type": "string"
+                }
+            }
+        },
         "server.getPropertyByIDRequest": {
             "type": "object",
             "required": [
@@ -285,6 +346,45 @@ const docTemplate = `{
                 },
                 "Username": {
                     "type": "string"
+                }
+            }
+        },
+        "server.listingResponse": {
+            "type": "object",
+            "required": [
+                "AcceptedBidID",
+                "AgentID",
+                "Description",
+                "ID",
+                "ListingDate",
+                "ListingStatus",
+                "Price",
+                "PropertyID"
+            ],
+            "properties": {
+                "AcceptedBidID": {
+                    "type": "integer"
+                },
+                "AgentID": {
+                    "type": "integer"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "ListingDate": {
+                    "type": "string"
+                },
+                "ListingStatus": {
+                    "type": "string"
+                },
+                "Price": {
+                    "type": "string"
+                },
+                "PropertyID": {
+                    "type": "integer"
                 }
             }
         },

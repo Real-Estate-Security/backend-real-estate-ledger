@@ -47,19 +47,19 @@ func getListingResponse(currentListing database.Listings) listingResponse {
 	}
 }
 
-// GetPropertyByIDHandler handles the request for get property by id
+// getListingByPropertyIDHandler handles the request for get listing by property id
 //
-// @Summary get property by id
-// @Description get property by id
-// @Tags property
+// @Summary get listing by property id
+// @Description get listing by property id
+// @Tags listing
 // @Accept json
 // @Produce json
-// @Param getPropertyByIDRequest body getPropertyByIDRequest true "get property by id"
-// @Success 200 {object} propertyResponse
+// @Param getListingByIDRequest body getListingByIDRequest true "get listig by property id"
+// @Success 200 {object} listingResponse
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /property/getPriorityByID [post]
-func (s *Server) GetListingByPropertyIDHandler(c *gin.Context) {
+// @Router /listing/getListingByPropertyID [post]
+func (s *Server) getListingByPropertyIDHandler(c *gin.Context) {
 	var req getListingByIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))

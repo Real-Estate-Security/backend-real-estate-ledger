@@ -28,6 +28,16 @@ definitions:
     - role
     - username
     type: object
+  server.getListingByIDRequest:
+    properties:
+      PropertyID:
+        type: integer
+      Username:
+        type: string
+    required:
+    - PropertyID
+    - Username
+    type: object
   server.getPropertyByIDRequest:
     properties:
       PropertyID:
@@ -37,6 +47,34 @@ definitions:
     required:
     - PropertyID
     - Username
+    type: object
+  server.listingResponse:
+    properties:
+      AcceptedBidID:
+        type: integer
+      AgentID:
+        type: integer
+      Description:
+        type: string
+      ID:
+        type: integer
+      ListingDate:
+        type: string
+      ListingStatus:
+        type: string
+      Price:
+        type: string
+      PropertyID:
+        type: integer
+    required:
+    - AcceptedBidID
+    - AgentID
+    - Description
+    - ID
+    - ListingDate
+    - ListingStatus
+    - Price
+    - PropertyID
     type: object
   server.loginUserRequest:
     properties:
@@ -145,6 +183,36 @@ paths:
       summary: Health Check
       tags:
       - health
+  /listing/getListingByPropertyID:
+    post:
+      consumes:
+      - application/json
+      description: get listing by property id
+      parameters:
+      - description: get listig by property id
+        in: body
+        name: getListingByIDRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.getListingByIDRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.listingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: get listing by property id
+      tags:
+      - listing
   /property/getPriorityByID:
     post:
       consumes:
