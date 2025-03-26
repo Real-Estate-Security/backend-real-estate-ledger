@@ -213,7 +213,7 @@ paths:
       summary: get listing by property id
       tags:
       - listing
-  /property/getPriorityByID:
+  /property/getPropertyByID:
     post:
       consumes:
       - application/json

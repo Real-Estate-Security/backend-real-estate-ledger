@@ -35,7 +35,7 @@ func getPropertyResponse(currentProperty database.Properties) propertyResponse {
 	}
 }
 
-// GetPropertyByIDHandler handles the request for get property by id
+// getPropertyByIDHandler handles the request for get property by id
 //
 // @Summary get property by id
 // @Description get property by id
@@ -46,8 +46,8 @@ func getPropertyResponse(currentProperty database.Properties) propertyResponse {
 // @Success 200 {object} propertyResponse
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /property/getPriorityByID [post]
-func (s *Server) GetPropertyByIDHandler(c *gin.Context) {
+// @Router /property/getPropertyByID [post]
+func (s *Server) getPropertyByIDHandler(c *gin.Context) {
 	var req getPropertyByIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))

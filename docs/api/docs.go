@@ -104,7 +104,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/property/getPriorityByID": {
+        "/property/getPropertyByID": {
             "post": {
                 "description": "get property by id",
                 "consumes": [
