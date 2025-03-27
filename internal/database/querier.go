@@ -9,12 +9,22 @@ import (
 )
 
 type Querier interface {
+	CreateListing(ctx context.Context, arg CreateListingParams) (Listings, error)
+	CreateProperty(ctx context.Context, arg CreatePropertyParams) (Properties, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (Users, error)
 	DeleteUser(ctx context.Context, id int64) error
+	GetListingByID(ctx context.Context, id int64) (Listings, error)
+	GetPropertyByID(ctx context.Context, id int64) (Properties, error)
 	GetUserByEmail(ctx context.Context, email string) (Users, error)
 	GetUserByID(ctx context.Context, id int64) (Users, error)
 	GetUserByUsername(ctx context.Context, username string) (Users, error)
+	ListListings(ctx context.Context) ([]Listings, error)
+	ListPropertis(ctx context.Context) ([]Properties, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error)
+	UpdateListingAcceptedBidID(ctx context.Context, arg UpdateListingAcceptedBidIDParams) (Listings, error)
+	UpdateListingPrice(ctx context.Context, arg UpdateListingPriceParams) (Listings, error)
+	UpdateListingStatus(ctx context.Context, arg UpdateListingStatusParams) (Listings, error)
+	UpdatePropertyOwner(ctx context.Context, arg UpdatePropertyOwnerParams) (Properties, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, error)
 }
 
