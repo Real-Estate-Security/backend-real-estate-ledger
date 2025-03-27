@@ -4,6 +4,7 @@ import (
 	"backend_real_estate/internal/database"
 	"backend_real_estate/internal/token"
 	"database/sql"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,10 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type requestRepresentationRequest struct {
-	ClientUsername string `json:"client_username" binding:"required,alphanum"`
-	StartDate      time.Time
-	EndDate        time.Time
+type requestAgentRepresentationRequest struct {
+	ClientUsername string    `json:"client_username" binding:"required,alphanum"`
+	StartDate      time.Time `json:"start_date" binding:"required" validate:"datetime=2006-01-02"`
+	EndDate        time.Time `json:"end_date" binding:"required" validate:"datetime=2006-01-02"`
 }
 
 // RequestRepresentationHandler handles an agent's request to represent a user.
@@ -24,14 +25,15 @@ type requestRepresentationRequest struct {
 // @Tags agent
 // @Accept json
 // @Produce json
-// @Param requestRepresentationRequest body requestRepresentationRequest true "Request Representation Request"
+// @Param requestAgentRepresentationRequest body requestAgentRepresentationRequest true "Request Representation Request"
 // @Success 200 {object} string "Representation request submitted successfully"
 // @Failure 400 {object} string "Invalid request"
 // @Failure 404 {object} string "Client not found"
 // @Failure 500 {object} string "Internal server error"
 // @Router /agent/request-representation [post]
+// @Security BearerAuth
 func (s *Server) RequestRepresentationHandler(c *gin.Context) {
-	var req requestRepresentationRequest
+	var req requestAgentRepresentationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -88,6 +90,7 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 // @Failure 404 {object} string "Representation not found"
 // @Failure 500 {object} string "Internal server error"
 // @Router /agent/accept-representation/{id} [post]
+// @Security BearerAuth
 func (s *Server) AcceptRepresentationHandler(c *gin.Context) {
 	id, err := parseIDParam(c, "id")
 	if err != nil {
@@ -122,6 +125,7 @@ func (s *Server) AcceptRepresentationHandler(c *gin.Context) {
 // @Failure 404 {object} string "Representation not found"
 // @Failure 500 {object} string "Internal server error"
 // @Router /agent/decline-representation/{id} [post]
+// @Security BearerAuth
 func (s *Server) DeclineRepresentationHandler(c *gin.Context) {
 	id, err := parseIDParam(c, "id")
 	if err != nil {
@@ -138,6 +142,39 @@ func (s *Server) DeclineRepresentationHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Representation request declined successfully", "representation": representation})
 }
 
+type listRepresentationsRequest struct {
+	Limit  int32 `json:"limit" binding:"required,min=1,max=100"`
+	Offset int32 `json:"offset" binding:"required,min=0"`
+}
+
+// NullableTime is a custom type to represent sql.NullTime in Swagger documentation.
+type NullableTime struct {
+	Time  time.Time `json:"time,omitempty"`
+	Valid bool      `json:"valid"`
+}
+
+// MarshalJSON customizes the JSON representation of NullableTime.
+func (nt NullableTime) MarshalJSON() ([]byte, error) {
+	if !nt.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(nt.Time)
+}
+
+// RepresentationsWithNullableTime is a struct to replace database.Representations for Swagger.
+type RepresentationsWithNullableTime struct {
+	ID         int64        `json:"id"`
+	UserID     int64        `json:"user_id"`
+	AgentID    int64        `json:"agent_id"`
+	StartDate  time.Time    `json:"start_date"`
+	EndDate    NullableTime `json:"end_date"`
+	Status     string       `json:"status"`
+	SignedDate NullableTime `json:"signed_date"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+	IsActive   bool         `json:"is_active"`
+}
+
 // ListRepresentationsHandler handles fetching all representations for the authenticated user.
 //
 // @Summary List representations
@@ -145,10 +182,11 @@ func (s *Server) DeclineRepresentationHandler(c *gin.Context) {
 // @Tags representations
 // @Accept json
 // @Produce json
-// @Success 200 {array} database.Representations "List of representations"
+// @Success 200 {array} RepresentationsWithNullableTime "List of representations"
 // @Failure 401 {object} string "Unauthorized"
 // @Failure 500 {object} string "Internal server error"
 // @Router /agent/representations [get]
+// @Security BearerAuth
 func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 	// Get the authenticated user's information
 	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
@@ -180,7 +218,25 @@ func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, representations)
+	// Convert database.Representations to RepresentationsWithNullableTime
+	var response []RepresentationsWithNullableTime
+
+	for _, r := range representations {
+		response = append(response, RepresentationsWithNullableTime{
+			ID:         r.ID,
+			UserID:     r.UserID,
+			AgentID:    r.AgentID,
+			StartDate:  r.StartDate,
+			EndDate:    NullableTime{Time: r.EndDate.Time, Valid: r.EndDate.Valid},
+			Status:     string(r.Status),
+			SignedDate: NullableTime{Time: r.SignedDate.Time, Valid: r.SignedDate.Valid},
+			CreatedAt:  r.CreatedAt,
+			UpdatedAt:  r.UpdatedAt,
+			IsActive:   r.IsActive,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // parseIDParam parses the ID parameter from the URL.

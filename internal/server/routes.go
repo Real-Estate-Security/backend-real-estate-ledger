@@ -27,7 +27,11 @@ func errorResponse(err error) gin.H {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @BasePath /v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your Bearer token in the format: Bearer <token>
+
 func (server *Server) RegisterRoutes() {
 	router := gin.Default()
 
@@ -38,7 +42,8 @@ func (server *Server) RegisterRoutes() {
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/"
+	// set base path for swagger
 
 	// general health check routes
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
@@ -72,7 +77,7 @@ func (server *Server) RegisterRoutes() {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /example/helloworld [get]
+// @Router /hello-world [get]
 func (s *Server) HelloWorldHandler(c *gin.Context) {
 	resp := make(map[string]string)
 	resp["message"] = "Hello World"
