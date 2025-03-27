@@ -5,6 +5,7 @@ import (
 	"backend_real_estate/internal/token"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -46,9 +47,20 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 		return
 	}
 
+	// check if client is same as agent
+
 	// Get the agent's username from the authorization payload
 	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if client.Username == authPayload.Username {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Client cannot be the same as the agent"})
+		return
+	}
+
 	agent, err := s.dbService.GetUserByUsername(c, authPayload.Username)
+
+	// chekc if user is already represented by this agent
+
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
@@ -98,12 +110,25 @@ func (s *Server) AcceptRepresentationHandler(c *gin.Context) {
 		return
 	}
 
+	// check if the representation exists
+	representation, err := s.dbService.GetRepresentationByID(c, id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+
+	// check if the representation is already accepted or declined
+	if representation.Status != "pending" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Representation request already %s", representation.Status)})
+		return
+	}
+
 	arg := database.AcceptRepresentationParams{
 		SignedDate: sql.NullTime{Time: time.Now(), Valid: true},
 		ID:         id,
 	}
 
-	representation, err := s.dbService.AcceptRepresentation(c, arg)
+	representation, err = s.dbService.AcceptRepresentation(c, arg)
 	if err != nil {
 		c.JSON(http.StatusNotFound, errorResponse(err))
 		return
@@ -133,7 +158,24 @@ func (s *Server) DeclineRepresentationHandler(c *gin.Context) {
 		return
 	}
 
-	representation, err := s.dbService.RejectRepresentation(c, id)
+	// check if the representation exists
+	representation, err := s.dbService.GetRepresentationByID(c, id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+	// check if the representation is already accepted
+	if representation.Status == "accepted" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Representation request already accepted"})
+		return
+	}
+	// check if the representation is already declined
+	if representation.Status == "rejected" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Representation request already declined"})
+		return
+	}
+
+	representation, err = s.dbService.RejectRepresentation(c, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, errorResponse(err))
 		return
@@ -143,8 +185,8 @@ func (s *Server) DeclineRepresentationHandler(c *gin.Context) {
 }
 
 type listRepresentationsRequest struct {
-	Limit  int32 `json:"limit" binding:"required,min=1,max=100"`
-	Offset int32 `json:"offset" binding:"required,min=0"`
+	Limit  int32 `json:"limit" binding:"min=1,max=100"`
+	Offset int32 `json:"offset" binding:"min=0"`
 }
 
 // NullableTime is a custom type to represent sql.NullTime in Swagger documentation.
@@ -182,12 +224,27 @@ type RepresentationsWithNullableTime struct {
 // @Tags representations
 // @Accept json
 // @Produce json
+// @Param limit query int false "Limit (default: 10)"
+// @Param offset query int false "Offset (default: 0)"
 // @Success 200 {array} RepresentationsWithNullableTime "List of representations"
+// @Failure 400 {object} string "Invalid request"
 // @Failure 401 {object} string "Unauthorized"
 // @Failure 500 {object} string "Internal server error"
 // @Router /agent/representations [get]
 // @Security BearerAuth
 func (s *Server) ListRepresentationsHandler(c *gin.Context) {
+	// Set default values
+	req := listRepresentationsRequest{
+		Limit:  10, // Default limit
+		Offset: 0,  // Default offset
+	}
+
+	// Bind query parameters, overriding defaults if provided
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
 	// Get the authenticated user's information
 	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
 	user, err := s.dbService.GetUserByUsername(c, authPayload.Username)
@@ -202,14 +259,14 @@ func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 	if user.Role == database.UserRoleAgent {
 		representations, err = s.dbService.ListRepresentationsByAgentID(c, database.ListRepresentationsByAgentIDParams{
 			AgentID: user.ID,
-			Limit:   100, // Default limit
-			Offset:  0,   // Default offset
+			Limit:   req.Limit,
+			Offset:  req.Offset,
 		})
 	} else {
 		representations, err = s.dbService.ListRepresentationsByUserID(c, database.ListRepresentationsByUserIDParams{
 			UserID: user.ID,
-			Limit:  100, // Default limit
-			Offset: 0,   // Default offset
+			Limit:  req.Limit,
+			Offset: req.Offset,
 		})
 	}
 
