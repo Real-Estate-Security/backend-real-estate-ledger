@@ -53,6 +53,14 @@ func (server *Server) RegisterRoutes() {
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	authRoutes.GET("/user/me", server.UserMeHandler)
 
+	// agent routes protected
+	authRoutes.POST("/agent/request-representation", server.RequestRepresentationHandler)
+	authRoutes.POST("/agent/accept-representation/:id", server.AcceptRepresentationHandler)
+	authRoutes.POST("/agent/decline-representation/:id", server.DeclineRepresentationHandler)
+
+	// agent and user routes protected
+	authRoutes.GET("/agent/representations", server.ListRepresentationsHandler)
+
 	server.router = router
 }
 
