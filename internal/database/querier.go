@@ -19,7 +19,7 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id int64) (Users, error)
 	GetUserByUsername(ctx context.Context, username string) (Users, error)
 	ListListings(ctx context.Context) ([]Listings, error)
-	ListPropertis(ctx context.Context) ([]Properties, error)
+	ListProperties(ctx context.Context) ([]Properties, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error)
 	UpdateListingAcceptedBidID(ctx context.Context, arg UpdateListingAcceptedBidIDParams) (Listings, error)
 	UpdateListingPrice(ctx context.Context, arg UpdateListingPriceParams) (Listings, error)

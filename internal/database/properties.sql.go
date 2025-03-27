@@ -85,13 +85,13 @@ func (q *Queries) GetPropertyByID(ctx context.Context, id int64) (Properties, er
 	return i, err
 }
 
-const listPropertis = `-- name: ListPropertis :many
+const listProperties = `-- name: ListProperties :many
 SELECT id, owner, address, city, state, zipcode, bedrooms, bathrooms FROM properties
 ORDER BY id
 `
 
-func (q *Queries) ListPropertis(ctx context.Context) ([]Properties, error) {
-	rows, err := q.db.QueryContext(ctx, listPropertis)
+func (q *Queries) ListProperties(ctx context.Context) ([]Properties, error) {
+	rows, err := q.db.QueryContext(ctx, listProperties)
 	if err != nil {
 		return nil, err
 	}

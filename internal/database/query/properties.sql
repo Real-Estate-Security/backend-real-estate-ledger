@@ -22,7 +22,7 @@ RETURNING *;
 SELECT * FROM properties
 WHERE id = $1;
 
--- name: ListPropertis :many
+-- name: ListProperties :many
 SELECT * FROM properties
 ORDER BY id;
 
