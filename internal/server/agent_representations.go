@@ -230,8 +230,8 @@ type RepresentationsWithNullableTime struct {
 // @Failure 400 {object} string "Invalid request"
 // @Failure 401 {object} string "Unauthorized"
 // @Failure 500 {object} string "Internal server error"
-// @Router /agent/representations [get]
 // @Security BearerAuth
+// @Router /agent/representations [get]
 func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 	// Set default values
 	req := listRepresentationsRequest{

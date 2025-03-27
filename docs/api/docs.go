@@ -143,6 +143,20 @@ const docTemplate = `{
                     "representations"
                 ],
                 "summary": "List representations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of representations",
@@ -151,6 +165,12 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/server.RepresentationsWithNullableTime"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "401": {

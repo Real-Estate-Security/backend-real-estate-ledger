@@ -198,6 +198,15 @@ paths:
       - application/json
       description: Fetches all representations for the authenticated user, whether
         they are an agent or a regular user.
+      parameters:
+      - description: 'Limit (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Offset (default: 0)'
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -207,6 +216,10 @@ paths:
             items:
               $ref: '#/definitions/server.RepresentationsWithNullableTime'
             type: array
+        "400":
+          description: Invalid request
+          schema:
+            type: string
         "401":
           description: Unauthorized
           schema:
