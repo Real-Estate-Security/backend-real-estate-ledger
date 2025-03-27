@@ -1,13 +1,10 @@
 package gateway
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path"
 
-	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -72,25 +69,6 @@ func NewGrpcConnection() *grpc.ClientConn {
 	}
 
 	return connection
-}
-
-func GetAllProperties(contract *client.Contract) {
-	evaluateResult, err := contract.EvaluateTransaction("ViewProperties")
-	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
-	}
-	result := formatJSON(evaluateResult)
-
-	fmt.Printf("*** Result:%s\n", result)
-}
-
-// Format JSON data
-func formatJSON(data []byte) string {
-	var prettyJSON bytes.Buffer
-	if err := json.Indent(&prettyJSON, data, "", "  "); err != nil {
-		panic(fmt.Errorf("failed to parse JSON: %w", err))
-	}
-	return prettyJSON.String()
 }
 
 func readFirstFile(dirPath string) ([]byte, error) {

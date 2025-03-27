@@ -8,16 +8,17 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/stretchr/testify/require"
 )
 
-func newTestServer(t *testing.T, service database.Service) *Server {
+func newTestServer(t *testing.T, service database.Service, gwService *client.Gateway) *Server {
 	config := util.Config{
 		TokenSymmetricKey:   util.RandomString(32),
 		AccessTokenDuration: time.Minute,
 	}
 
-	ginServer, err := NewGinServer(config, service)
+	ginServer, err := NewGinServer(config, service, gwService)
 
 	require.NoError(t, err)
 
