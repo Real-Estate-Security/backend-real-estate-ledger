@@ -15,6 +15,7 @@ const acceptRepresentation = `-- name: AcceptRepresentation :one
 UPDATE representations
 SET
     status = 'accepted',
+    is_active = TRUE,
     signed_date = $1
 WHERE id = $2
 RETURNING id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active
@@ -225,6 +226,7 @@ const rejectRepresentation = `-- name: RejectRepresentation :one
 UPDATE representations
 SET
     status = 'rejected',
+    is_active = FALSE,
     updated_at = now()
 WHERE id = $1
 RETURNING id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active

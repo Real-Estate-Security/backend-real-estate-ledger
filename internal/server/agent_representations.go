@@ -59,8 +59,6 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 
 	agent, err := s.dbService.GetUserByUsername(c, authPayload.Username)
 
-	// chekc if user is already represented by this agent
-
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, errorResponse(err))
 		return

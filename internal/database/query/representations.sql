@@ -18,6 +18,7 @@ RETURNING *;
 UPDATE representations
 SET
     status = 'accepted',
+    is_active = TRUE,
     signed_date = $1
 WHERE id = $2
 RETURNING *;
@@ -26,6 +27,7 @@ RETURNING *;
 UPDATE representations
 SET
     status = 'rejected',
+    is_active = FALSE,
     updated_at = now()
 WHERE id = $1
 RETURNING *;
