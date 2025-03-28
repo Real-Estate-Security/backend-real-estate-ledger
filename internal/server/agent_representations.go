@@ -74,7 +74,8 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 	arg := database.CreateRepresentationParams{
 		UserID:    client.ID,
 		AgentID:   agent.ID,
-		StartDate: time.Now(),
+		StartDate: req.StartDate,
+		EndDate:   sql.NullTime{Time: req.EndDate, Valid: true},
 		IsActive:  false, // Pending status
 	}
 
