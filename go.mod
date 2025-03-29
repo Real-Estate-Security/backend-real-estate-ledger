@@ -24,7 +24,7 @@ require (
 	github.com/swaggo/swag v1.16.4
 	github.com/testcontainers/testcontainers-go v0.35.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.35.0
-	golang.org/x/crypto v0.34.0
+	golang.org/x/crypto v0.35.0
 	google.golang.org/grpc v1.69.2
 )
 
