@@ -58,6 +58,54 @@ definitions:
     - role
     - username
     type: object
+  server.getListingByIDRequest:
+    properties:
+      PropertyID:
+        type: integer
+      Username:
+        type: string
+    required:
+    - PropertyID
+    - Username
+    type: object
+  server.getPropertyByIDRequest:
+    properties:
+      PropertyID:
+        type: integer
+      Username:
+        type: string
+    required:
+    - PropertyID
+    - Username
+    type: object
+  server.listingResponse:
+    properties:
+      AcceptedBidID:
+        type: integer
+      AgentID:
+        type: integer
+      Description:
+        type: string
+      ID:
+        type: integer
+      ListingDate:
+        type: string
+      ListingStatus:
+        type: string
+      Price:
+        type: string
+      PropertyID:
+        type: integer
+    required:
+    - AcceptedBidID
+    - AgentID
+    - Description
+    - ID
+    - ListingDate
+    - ListingStatus
+    - Price
+    - PropertyID
+    type: object
   server.loginUserRequest:
     properties:
       password:
@@ -75,6 +123,34 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/server.userResponse'
+    type: object
+  server.propertyResponse:
+    properties:
+      Address:
+        type: string
+      City:
+        type: string
+      ID:
+        type: integer
+      NumOfBathrooms:
+        type: integer
+      NumOfBedrooms:
+        type: integer
+      Owner:
+        type: integer
+      State:
+        type: string
+      ZipCode:
+        type: integer
+    required:
+    - Address
+    - City
+    - ID
+    - NumOfBathrooms
+    - NumOfBedrooms
+    - Owner
+    - State
+    - ZipCode
     type: object
   server.requestAgentRepresentationRequest:
     properties:
@@ -282,6 +358,66 @@ paths:
       summary: Health Check
       tags:
       - health
+  /listing/getListingByPropertyID:
+    post:
+      consumes:
+      - application/json
+      description: get listing by property id
+      parameters:
+      - description: get listig by property id
+        in: body
+        name: getListingByIDRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.getListingByIDRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.listingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: get listing by property id
+      tags:
+      - listing
+  /property/getPropertyByID:
+    post:
+      consumes:
+      - application/json
+      description: get property by id
+      parameters:
+      - description: get property by id
+        in: body
+        name: getPropertyByIDRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.getPropertyByIDRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.propertyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: get property by id
+      tags:
+      - property
   /hello-world:
     get:
       consumes:
