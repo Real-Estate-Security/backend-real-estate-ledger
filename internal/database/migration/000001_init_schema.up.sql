@@ -11,6 +11,12 @@ CREATE TYPE "BidStatus" AS ENUM (
   'countered'
 );
 
+CREATE TYPE "AgreementStatus" AS ENUM (
+  'pending',
+  'accepted',
+  'rejected'
+);
+
 CREATE TABLE "users" (
   "id" bigserial PRIMARY KEY,
   "username" varchar UNIQUE NOT NULL,
@@ -62,6 +68,10 @@ CREATE TABLE "representations" (
   "agent_id" bigserial NOT NULL,
   "start_date" timestamptz NOT NULL DEFAULT (now()),
   "end_date" timestamptz,
+  "status" "AgreementStatus" NOT NULL DEFAULT 'pending',
+  "signed_date" timestamptz,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
   "is_active" boolean NOT NULL DEFAULT true
 );
 

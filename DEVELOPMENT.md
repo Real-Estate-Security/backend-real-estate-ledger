@@ -45,25 +45,13 @@
    - Run the following command to start the Docker containers:
 
      ```sh
-        make docker-run
+        docker-compose up
      ```
 
 5. Access the application
    - The application should now be running at `localhost:8080`.
 
 ### Additional Information: Make commands
-
-- **Installing Go Dependencies within the project**: To install the dependencies, use:
-
-  ```sh
-  go mod download
-  ```
-
-  or
-
-  ```sh
-  go mod tidy
-  ```
 
 - **Running Tests**: To run the test suite, use:
 

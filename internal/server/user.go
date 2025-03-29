@@ -153,6 +153,7 @@ type userMeResponse struct {
 // @Produce json
 // @Success 200 {object} userMeResponse "Successfully retrieved user information"
 // @Failure 401 {object} string "Unauthorized"
+// @Security BearerAuth
 // @Router /user/me [get]
 func (s *Server) UserMeHandler(c *gin.Context) {
 	// get authorization payload
