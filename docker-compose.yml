@@ -19,6 +19,8 @@ services:
         - DEV=true
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "org1peer-api.127-0-0-1.nip.io:host-gateway"
 
     depends_on:
       - dev-db-postgres
