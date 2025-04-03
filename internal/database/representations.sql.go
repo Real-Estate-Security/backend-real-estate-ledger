@@ -16,18 +16,18 @@ UPDATE representations
 SET
     status = 'accepted',
     is_active = TRUE,
-    signed_date = $1
+    signed_at = $1
 WHERE id = $2
-RETURNING id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active
+RETURNING id, user_id, agent_id, start_date, end_date, status, requested_at, signed_at, is_active
 `
 
 type AcceptRepresentationParams struct {
-	SignedDate sql.NullTime `json:"signed_date"`
-	ID         int64        `json:"id"`
+	SignedAt sql.NullTime `json:"signed_at"`
+	ID       int64        `json:"id"`
 }
 
 func (q *Queries) AcceptRepresentation(ctx context.Context, arg AcceptRepresentationParams) (Representations, error) {
-	row := q.db.QueryRowContext(ctx, acceptRepresentation, arg.SignedDate, arg.ID)
+	row := q.db.QueryRowContext(ctx, acceptRepresentation, arg.SignedAt, arg.ID)
 	var i Representations
 	err := row.Scan(
 		&i.ID,
@@ -36,9 +36,8 @@ func (q *Queries) AcceptRepresentation(ctx context.Context, arg AcceptRepresenta
 		&i.StartDate,
 		&i.EndDate,
 		&i.Status,
-		&i.SignedDate,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.RequestedAt,
+		&i.SignedAt,
 		&i.IsActive,
 	)
 	return i, err
@@ -49,16 +48,14 @@ INSERT INTO representations(
     user_id,
     agent_id,
     start_date,
-    end_date,
-    is_active
+    end_date
 ) VALUES (
     $1,
     $2,
     $3,
-    $4,
-    $5
+    $4
 )
-RETURNING id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active
+RETURNING id, user_id, agent_id, start_date, end_date, status, requested_at, signed_at, is_active
 `
 
 type CreateRepresentationParams struct {
@@ -66,7 +63,6 @@ type CreateRepresentationParams struct {
 	AgentID   int64        `json:"agent_id"`
 	StartDate time.Time    `json:"start_date"`
 	EndDate   sql.NullTime `json:"end_date"`
-	IsActive  bool         `json:"is_active"`
 }
 
 func (q *Queries) CreateRepresentation(ctx context.Context, arg CreateRepresentationParams) (Representations, error) {
@@ -75,7 +71,6 @@ func (q *Queries) CreateRepresentation(ctx context.Context, arg CreateRepresenta
 		arg.AgentID,
 		arg.StartDate,
 		arg.EndDate,
-		arg.IsActive,
 	)
 	var i Representations
 	err := row.Scan(
@@ -85,9 +80,8 @@ func (q *Queries) CreateRepresentation(ctx context.Context, arg CreateRepresenta
 		&i.StartDate,
 		&i.EndDate,
 		&i.Status,
-		&i.SignedDate,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.RequestedAt,
+		&i.SignedAt,
 		&i.IsActive,
 	)
 	return i, err
@@ -104,32 +98,91 @@ func (q *Queries) DeleteRepresentation(ctx context.Context, id int64) error {
 }
 
 const getRepresentationByID = `-- name: GetRepresentationByID :one
-SELECT id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active FROM representations
-WHERE id = $1
+SELECT 
+    r.id,
+    r.user_id AS client_id,
+    u.first_name AS client_first_name,
+    u.last_name AS client_last_name,
+    u.username AS client_username,
+    r.agent_id,
+    a.first_name AS agent_first_name,
+    a.last_name AS agent_last_name,
+    a.username AS agent_username,
+    r.start_date,
+    r.end_date,
+    r.status,
+    r.requested_at,
+    r.signed_at,
+    r.is_active
+FROM representations r
+JOIN users u ON r.user_id = u.id
+JOIN users a ON r.agent_id = a.id
+WHERE r.id = $1
 `
 
-func (q *Queries) GetRepresentationByID(ctx context.Context, id int64) (Representations, error) {
+type GetRepresentationByIDRow struct {
+	ID              int64           `json:"id"`
+	ClientID        int64           `json:"client_id"`
+	ClientFirstName string          `json:"client_first_name"`
+	ClientLastName  string          `json:"client_last_name"`
+	ClientUsername  string          `json:"client_username"`
+	AgentID         int64           `json:"agent_id"`
+	AgentFirstName  string          `json:"agent_first_name"`
+	AgentLastName   string          `json:"agent_last_name"`
+	AgentUsername   string          `json:"agent_username"`
+	StartDate       time.Time       `json:"start_date"`
+	EndDate         sql.NullTime    `json:"end_date"`
+	Status          AgreementStatus `json:"status"`
+	RequestedAt     time.Time       `json:"requested_at"`
+	SignedAt        sql.NullTime    `json:"signed_at"`
+	IsActive        bool            `json:"is_active"`
+}
+
+func (q *Queries) GetRepresentationByID(ctx context.Context, id int64) (GetRepresentationByIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getRepresentationByID, id)
-	var i Representations
+	var i GetRepresentationByIDRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
+		&i.ClientID,
+		&i.ClientFirstName,
+		&i.ClientLastName,
+		&i.ClientUsername,
 		&i.AgentID,
+		&i.AgentFirstName,
+		&i.AgentLastName,
+		&i.AgentUsername,
 		&i.StartDate,
 		&i.EndDate,
 		&i.Status,
-		&i.SignedDate,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.RequestedAt,
+		&i.SignedAt,
 		&i.IsActive,
 	)
 	return i, err
 }
 
 const listRepresentationsByAgentID = `-- name: ListRepresentationsByAgentID :many
-SELECT id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active FROM representations
-WHERE agent_id = $1
-ORDER BY id
+SELECT 
+    r.id,
+    r.user_id AS client_id,
+    u.first_name AS client_first_name,
+    u.last_name AS client_last_name,
+    u.username AS client_username,
+    r.agent_id,
+    a.first_name AS agent_first_name,
+    a.last_name AS agent_last_name,
+    a.username AS agent_username,
+    r.start_date,
+    r.end_date,
+    r.status,
+    r.requested_at,
+    r.signed_at,
+    r.is_active
+FROM representations r
+JOIN users u ON r.user_id = u.id
+JOIN users a ON r.agent_id = a.id
+WHERE r.agent_id = $1
+ORDER BY r.id
 LIMIT $2
 OFFSET $3
 `
@@ -140,25 +193,48 @@ type ListRepresentationsByAgentIDParams struct {
 	Offset  int32 `json:"offset"`
 }
 
-func (q *Queries) ListRepresentationsByAgentID(ctx context.Context, arg ListRepresentationsByAgentIDParams) ([]Representations, error) {
+type ListRepresentationsByAgentIDRow struct {
+	ID              int64           `json:"id"`
+	ClientID        int64           `json:"client_id"`
+	ClientFirstName string          `json:"client_first_name"`
+	ClientLastName  string          `json:"client_last_name"`
+	ClientUsername  string          `json:"client_username"`
+	AgentID         int64           `json:"agent_id"`
+	AgentFirstName  string          `json:"agent_first_name"`
+	AgentLastName   string          `json:"agent_last_name"`
+	AgentUsername   string          `json:"agent_username"`
+	StartDate       time.Time       `json:"start_date"`
+	EndDate         sql.NullTime    `json:"end_date"`
+	Status          AgreementStatus `json:"status"`
+	RequestedAt     time.Time       `json:"requested_at"`
+	SignedAt        sql.NullTime    `json:"signed_at"`
+	IsActive        bool            `json:"is_active"`
+}
+
+func (q *Queries) ListRepresentationsByAgentID(ctx context.Context, arg ListRepresentationsByAgentIDParams) ([]ListRepresentationsByAgentIDRow, error) {
 	rows, err := q.db.QueryContext(ctx, listRepresentationsByAgentID, arg.AgentID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Representations{}
+	items := []ListRepresentationsByAgentIDRow{}
 	for rows.Next() {
-		var i Representations
+		var i ListRepresentationsByAgentIDRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
+			&i.ClientID,
+			&i.ClientFirstName,
+			&i.ClientLastName,
+			&i.ClientUsername,
 			&i.AgentID,
+			&i.AgentFirstName,
+			&i.AgentLastName,
+			&i.AgentUsername,
 			&i.StartDate,
 			&i.EndDate,
 			&i.Status,
-			&i.SignedDate,
-			&i.CreatedAt,
-			&i.UpdatedAt,
+			&i.RequestedAt,
+			&i.SignedAt,
 			&i.IsActive,
 		); err != nil {
 			return nil, err
@@ -175,9 +251,27 @@ func (q *Queries) ListRepresentationsByAgentID(ctx context.Context, arg ListRepr
 }
 
 const listRepresentationsByUserID = `-- name: ListRepresentationsByUserID :many
-SELECT id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active FROM representations
-WHERE user_id = $1
-ORDER BY id
+SELECT 
+    r.id,
+    r.user_id AS client_id,
+    u.first_name AS client_first_name,
+    u.last_name AS client_last_name,
+    u.username AS client_username,
+    r.agent_id,
+    a.first_name AS agent_first_name,
+    a.last_name AS agent_last_name,
+    a.username AS agent_username,
+    r.start_date,
+    r.end_date,
+    r.status,
+    r.requested_at,
+    r.signed_at,
+    r.is_active
+FROM representations r
+JOIN users u ON r.user_id = u.id
+JOIN users a ON r.agent_id = a.id
+WHERE r.user_id = $1
+ORDER BY r.id
 LIMIT $2
 OFFSET $3
 `
@@ -188,25 +282,48 @@ type ListRepresentationsByUserIDParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListRepresentationsByUserID(ctx context.Context, arg ListRepresentationsByUserIDParams) ([]Representations, error) {
+type ListRepresentationsByUserIDRow struct {
+	ID              int64           `json:"id"`
+	ClientID        int64           `json:"client_id"`
+	ClientFirstName string          `json:"client_first_name"`
+	ClientLastName  string          `json:"client_last_name"`
+	ClientUsername  string          `json:"client_username"`
+	AgentID         int64           `json:"agent_id"`
+	AgentFirstName  string          `json:"agent_first_name"`
+	AgentLastName   string          `json:"agent_last_name"`
+	AgentUsername   string          `json:"agent_username"`
+	StartDate       time.Time       `json:"start_date"`
+	EndDate         sql.NullTime    `json:"end_date"`
+	Status          AgreementStatus `json:"status"`
+	RequestedAt     time.Time       `json:"requested_at"`
+	SignedAt        sql.NullTime    `json:"signed_at"`
+	IsActive        bool            `json:"is_active"`
+}
+
+func (q *Queries) ListRepresentationsByUserID(ctx context.Context, arg ListRepresentationsByUserIDParams) ([]ListRepresentationsByUserIDRow, error) {
 	rows, err := q.db.QueryContext(ctx, listRepresentationsByUserID, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Representations{}
+	items := []ListRepresentationsByUserIDRow{}
 	for rows.Next() {
-		var i Representations
+		var i ListRepresentationsByUserIDRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
+			&i.ClientID,
+			&i.ClientFirstName,
+			&i.ClientLastName,
+			&i.ClientUsername,
 			&i.AgentID,
+			&i.AgentFirstName,
+			&i.AgentLastName,
+			&i.AgentUsername,
 			&i.StartDate,
 			&i.EndDate,
 			&i.Status,
-			&i.SignedDate,
-			&i.CreatedAt,
-			&i.UpdatedAt,
+			&i.RequestedAt,
+			&i.SignedAt,
 			&i.IsActive,
 		); err != nil {
 			return nil, err
@@ -229,7 +346,7 @@ SET
     is_active = FALSE,
     updated_at = now()
 WHERE id = $1
-RETURNING id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active
+RETURNING id, user_id, agent_id, start_date, end_date, status, requested_at, signed_at, is_active
 `
 
 func (q *Queries) RejectRepresentation(ctx context.Context, id int64) (Representations, error) {
@@ -242,9 +359,8 @@ func (q *Queries) RejectRepresentation(ctx context.Context, id int64) (Represent
 		&i.StartDate,
 		&i.EndDate,
 		&i.Status,
-		&i.SignedDate,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.RequestedAt,
+		&i.SignedAt,
 		&i.IsActive,
 	)
 	return i, err
@@ -257,18 +373,24 @@ SET
     agent_id = $2,
     start_date = $3,
     end_date = $4,
-    is_active = $5
-WHERE id = $6
-RETURNING id, user_id, agent_id, start_date, end_date, status, signed_date, created_at, updated_at, is_active
+    status = $5,
+    requested_at = $6,
+    signed_at = $7,
+    is_active = $8
+WHERE id = $9
+RETURNING id, user_id, agent_id, start_date, end_date, status, requested_at, signed_at, is_active
 `
 
 type UpdateRepresentationParams struct {
-	UserID    int64        `json:"user_id"`
-	AgentID   int64        `json:"agent_id"`
-	StartDate time.Time    `json:"start_date"`
-	EndDate   sql.NullTime `json:"end_date"`
-	IsActive  bool         `json:"is_active"`
-	ID        int64        `json:"id"`
+	UserID      int64           `json:"user_id"`
+	AgentID     int64           `json:"agent_id"`
+	StartDate   time.Time       `json:"start_date"`
+	EndDate     sql.NullTime    `json:"end_date"`
+	Status      AgreementStatus `json:"status"`
+	RequestedAt time.Time       `json:"requested_at"`
+	SignedAt    sql.NullTime    `json:"signed_at"`
+	IsActive    bool            `json:"is_active"`
+	ID          int64           `json:"id"`
 }
 
 func (q *Queries) UpdateRepresentation(ctx context.Context, arg UpdateRepresentationParams) (Representations, error) {
@@ -277,6 +399,9 @@ func (q *Queries) UpdateRepresentation(ctx context.Context, arg UpdateRepresenta
 		arg.AgentID,
 		arg.StartDate,
 		arg.EndDate,
+		arg.Status,
+		arg.RequestedAt,
+		arg.SignedAt,
 		arg.IsActive,
 		arg.ID,
 	)
@@ -288,9 +413,8 @@ func (q *Queries) UpdateRepresentation(ctx context.Context, arg UpdateRepresenta
 		&i.StartDate,
 		&i.EndDate,
 		&i.Status,
-		&i.SignedDate,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.RequestedAt,
+		&i.SignedAt,
 		&i.IsActive,
 	)
 	return i, err

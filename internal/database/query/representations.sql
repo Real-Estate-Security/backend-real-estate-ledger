@@ -3,14 +3,12 @@ INSERT INTO representations(
     user_id,
     agent_id,
     start_date,
-    end_date,
-    is_active
+    end_date
 ) VALUES (
     $1,
     $2,
     $3,
-    $4,
-    $5
+    $4
 )
 RETURNING *;
 
@@ -19,7 +17,7 @@ UPDATE representations
 SET
     status = 'accepted',
     is_active = TRUE,
-    signed_date = $1
+    signed_at = $1
 WHERE id = $2
 RETURNING *;
 
@@ -33,22 +31,76 @@ WHERE id = $1
 RETURNING *;
 
 -- name: ListRepresentationsByUserID :many
-SELECT * FROM representations
-WHERE user_id = $1
-ORDER BY id
+SELECT 
+    r.id,
+    r.user_id AS client_id,
+    u.first_name AS client_first_name,
+    u.last_name AS client_last_name,
+    u.username AS client_username,
+    r.agent_id,
+    a.first_name AS agent_first_name,
+    a.last_name AS agent_last_name,
+    a.username AS agent_username,
+    r.start_date,
+    r.end_date,
+    r.status,
+    r.requested_at,
+    r.signed_at,
+    r.is_active
+FROM representations r
+JOIN users u ON r.user_id = u.id
+JOIN users a ON r.agent_id = a.id
+WHERE r.user_id = $1
+ORDER BY r.id
 LIMIT $2
 OFFSET $3;
 
 -- name: ListRepresentationsByAgentID :many
-SELECT * FROM representations
-WHERE agent_id = $1
-ORDER BY id
+SELECT 
+    r.id,
+    r.user_id AS client_id,
+    u.first_name AS client_first_name,
+    u.last_name AS client_last_name,
+    u.username AS client_username,
+    r.agent_id,
+    a.first_name AS agent_first_name,
+    a.last_name AS agent_last_name,
+    a.username AS agent_username,
+    r.start_date,
+    r.end_date,
+    r.status,
+    r.requested_at,
+    r.signed_at,
+    r.is_active
+FROM representations r
+JOIN users u ON r.user_id = u.id
+JOIN users a ON r.agent_id = a.id
+WHERE r.agent_id = $1
+ORDER BY r.id
 LIMIT $2
 OFFSET $3;
 
 -- name: GetRepresentationByID :one
-SELECT * FROM representations
-WHERE id = $1;
+SELECT 
+    r.id,
+    r.user_id AS client_id,
+    u.first_name AS client_first_name,
+    u.last_name AS client_last_name,
+    u.username AS client_username,
+    r.agent_id,
+    a.first_name AS agent_first_name,
+    a.last_name AS agent_last_name,
+    a.username AS agent_username,
+    r.start_date,
+    r.end_date,
+    r.status,
+    r.requested_at,
+    r.signed_at,
+    r.is_active
+FROM representations r
+JOIN users u ON r.user_id = u.id
+JOIN users a ON r.agent_id = a.id
+WHERE r.id = $1;
 
 -- name: UpdateRepresentation :one
 UPDATE representations
@@ -57,8 +109,11 @@ SET
     agent_id = $2,
     start_date = $3,
     end_date = $4,
-    is_active = $5
-WHERE id = $6
+    status = $5,
+    requested_at = $6,
+    signed_at = $7,
+    is_active = $8
+WHERE id = $9
 RETURNING *;
 
 -- name: DeleteRepresentation :exec
