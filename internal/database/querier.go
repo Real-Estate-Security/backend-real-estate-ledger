@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	AcceptRepresentation(ctx context.Context, arg AcceptRepresentationParams) (Representations, error)
+	CreateBid(ctx context.Context, arg CreateBidParams) (Bids, error)
 	CreateRepresentation(ctx context.Context, arg CreateRepresentationParams) (Representations, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (Users, error)
 	DeleteRepresentation(ctx context.Context, id int64) error
