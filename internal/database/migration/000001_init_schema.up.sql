@@ -69,10 +69,9 @@ CREATE TABLE "representations" (
   "start_date" timestamptz NOT NULL DEFAULT (now()),
   "end_date" timestamptz,
   "status" "AgreementStatus" NOT NULL DEFAULT 'pending',
-  "signed_date" timestamptz,
-  "created_at" timestamptz NOT NULL DEFAULT (now()),
-  "updated_at" timestamptz NOT NULL DEFAULT (now()),
-  "is_active" boolean NOT NULL DEFAULT true
+  "requested_at" timestamptz NOT NULL DEFAULT (now()),
+  "signed_at" timestamptz,
+  "is_active" boolean NOT NULL DEFAULT false
 );
 
 COMMENT ON COLUMN "representations"."user_id" IS 'Buyer being represented';

@@ -46,25 +46,29 @@ const docTemplate = `{
                     "200": {
                         "description": "Representation request accepted successfully",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "404": {
                         "description": "Representation not found",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -101,31 +105,35 @@ const docTemplate = `{
                     "200": {
                         "description": "Representation request declined successfully",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "404": {
                         "description": "Representation not found",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
             }
         },
-        "/agent/representations": {
+        "/agent/representation": {
             "get": {
                 "security": [
                     {
@@ -163,26 +171,29 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/server.RepresentationsWithNullableTime"
+                                "$ref": "#/definitions/server.RepresentationData"
                             }
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -221,25 +232,29 @@ const docTemplate = `{
                     "200": {
                         "description": "Representation request submitted successfully",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "404": {
                         "description": "Client not found",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -255,6 +270,29 @@ const docTemplate = `{
                     "health"
                 ],
                 "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/hello-world": {
+            "get": {
+                "description": "HelloWorld example",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "HelloWorld example",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -350,29 +388,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/hello-world": {
-            "get": {
-                "description": "HelloWorld example",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "example"
-                ],
-                "summary": "HelloWorld example",
-                "responses": {
-                    "200": {
-                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -525,13 +540,31 @@ const docTemplate = `{
                 }
             }
         },
-        "server.RepresentationsWithNullableTime": {
+        "server.RepresentationData": {
             "type": "object",
             "properties": {
+                "agent_first_name": {
+                    "type": "string"
+                },
                 "agent_id": {
                     "type": "integer"
                 },
-                "created_at": {
+                "agent_last_name": {
+                    "type": "string"
+                },
+                "agent_username": {
+                    "type": "string"
+                },
+                "client_first_name": {
+                    "type": "string"
+                },
+                "client_id": {
+                    "type": "integer"
+                },
+                "client_last_name": {
+                    "type": "string"
+                },
+                "client_username": {
                     "type": "string"
                 },
                 "end_date": {
@@ -543,7 +576,10 @@ const docTemplate = `{
                 "is_active": {
                     "type": "boolean"
                 },
-                "signed_date": {
+                "requested_at": {
+                    "type": "string"
+                },
+                "signed_at": {
                     "$ref": "#/definitions/server.NullableTime"
                 },
                 "start_date": {
@@ -551,12 +587,6 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },

@@ -183,11 +183,10 @@ type Representations struct {
 	// Date when representation started
 	StartDate time.Time `json:"start_date"`
 	// Date when representation ended, null if still active
-	EndDate    sql.NullTime    `json:"end_date"`
-	Status     AgreementStatus `json:"status"`
-	SignedDate sql.NullTime    `json:"signed_date"`
-	CreatedAt  time.Time       `json:"created_at"`
-	UpdatedAt  time.Time       `json:"updated_at"`
+	EndDate     sql.NullTime    `json:"end_date"`
+	Status      AgreementStatus `json:"status"`
+	RequestedAt time.Time       `json:"requested_at"`
+	SignedAt    sql.NullTime    `json:"signed_at"`
 	// Whether the representation is currently active
 	IsActive bool `json:"is_active"`
 }
