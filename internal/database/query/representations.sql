@@ -25,8 +25,7 @@ RETURNING *;
 UPDATE representations
 SET
     status = 'rejected',
-    is_active = FALSE,
-    updated_at = now()
+    is_active = FALSE
 WHERE id = $1
 RETURNING *;
 

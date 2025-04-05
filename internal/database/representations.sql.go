@@ -343,8 +343,7 @@ const rejectRepresentation = `-- name: RejectRepresentation :one
 UPDATE representations
 SET
     status = 'rejected',
-    is_active = FALSE,
-    updated_at = now()
+    is_active = FALSE
 WHERE id = $1
 RETURNING id, user_id, agent_id, start_date, end_date, status, requested_at, signed_at, is_active
 `

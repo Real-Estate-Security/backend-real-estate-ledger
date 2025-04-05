@@ -75,7 +75,7 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 		EndDate:   sql.NullTime{Time: req.EndDate, Valid: true},
 	}
 
-	_, err = s.dbService.CreateRepresentation(c, arg)
+	rep, err := s.dbService.CreateRepresentation(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -85,7 +85,7 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 	network := s.gwService.GetNetwork("mychannel")
 	contract := network.GetContract("realestatesec")
 
-	_, err = contract.SubmitTransaction("RequestRepresentation", req.ClientUsername, authPayload.Username, req.StartDate.Format(time.RFC3339), req.EndDate.Format(time.RFC3339))
+	_, err = contract.SubmitTransaction("RequestRepresentation", strconv.FormatInt(rep.ID, 10), req.ClientUsername, authPayload.Username, req.StartDate.Format(time.RFC3339), req.EndDate.Format(time.RFC3339))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit representation request to the ledger"})
 		return
