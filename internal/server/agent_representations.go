@@ -27,10 +27,10 @@ type requestAgentRepresentationRequest struct {
 // @Accept json
 // @Produce json
 // @Param requestAgentRepresentationRequest body requestAgentRepresentationRequest true "Request Representation Request"
-// @Success 200 {object} string "Representation request submitted successfully"
-// @Failure 400 {object} string "Invalid request"
-// @Failure 404 {object} string "Client not found"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {object} map[string]interface{} "Representation request submitted successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 404 {object} map[string]interface{} "Client not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /agent/request-representation [post]
 // @Security BearerAuth
 func (s *Server) RequestRepresentationHandler(c *gin.Context) {
@@ -47,8 +47,6 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 		return
 	}
 
-	// check if client is same as agent
-
 	// Get the agent's username from the authorization payload
 	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
 
@@ -58,7 +56,6 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 	}
 
 	agent, err := s.dbService.GetUserByUsername(c, authPayload.Username)
-
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
@@ -76,12 +73,21 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 		AgentID:   agent.ID,
 		StartDate: req.StartDate,
 		EndDate:   sql.NullTime{Time: req.EndDate, Valid: true},
-		IsActive:  false, // Pending status
 	}
 
-	_, err = s.dbService.CreateRepresentation(c, arg)
+	rep, err := s.dbService.CreateRepresentation(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Commit the representation request to the ledger
+	network := s.gwService.GetNetwork("mychannel")
+	contract := network.GetContract("realestatesec")
+
+	_, err = contract.SubmitTransaction("RequestRepresentation", strconv.FormatInt(rep.ID, 10), req.ClientUsername, authPayload.Username, req.StartDate.Format(time.RFC3339), req.EndDate.Format(time.RFC3339))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit representation request to the ledger"})
 		return
 	}
 
@@ -96,10 +102,10 @@ func (s *Server) RequestRepresentationHandler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Representation ID"
-// @Success 200 {object} string "Representation request accepted successfully"
-// @Failure 400 {object} string "Invalid request"
-// @Failure 404 {object} string "Representation not found"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {object} map[string]interface{} "Representation request accepted successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 404 {object} map[string]interface{} "Representation not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /agent/accept-representation/{id} [post]
 // @Security BearerAuth
 func (s *Server) AcceptRepresentationHandler(c *gin.Context) {
@@ -109,31 +115,41 @@ func (s *Server) AcceptRepresentationHandler(c *gin.Context) {
 		return
 	}
 
-	// check if the representation exists
 	representation, err := s.dbService.GetRepresentationByID(c, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, errorResponse(err))
 		return
 	}
 
-	// check if the representation is already accepted or declined
+	// Check if the representation is already accepted or declined
 	if representation.Status != "pending" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Representation request already %s", representation.Status)})
 		return
 	}
 
 	arg := database.AcceptRepresentationParams{
-		SignedDate: sql.NullTime{Time: time.Now(), Valid: true},
-		ID:         id,
+		SignedAt: sql.NullTime{Time: time.Now(), Valid: true},
+		ID:       id,
 	}
 
-	representation, err = s.dbService.AcceptRepresentation(c, arg)
+	// Update the database
+	updatedRepresentation, err := s.dbService.AcceptRepresentation(c, arg)
 	if err != nil {
-		c.JSON(http.StatusNotFound, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Representation request accepted successfully", "representation": representation})
+	// Commit the acceptance to the ledger
+	network := s.gwService.GetNetwork("mychannel")
+	contract := network.GetContract("realestatesec")
+
+	_, err = contract.SubmitTransaction("AcceptRepresentation", strconv.FormatInt(id, 10))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit representation acceptance to the ledger"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Representation request accepted successfully", "representation": updatedRepresentation})
 }
 
 // DeclineRepresentationHandler handles declining a representation request.
@@ -144,10 +160,10 @@ func (s *Server) AcceptRepresentationHandler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Representation ID"
-// @Success 200 {object} string "Representation request declined successfully"
-// @Failure 400 {object} string "Invalid request"
-// @Failure 404 {object} string "Representation not found"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {object} map[string]interface{} "Representation request declined successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 404 {object} map[string]interface{} "Representation not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /agent/decline-representation/{id} [post]
 // @Security BearerAuth
 func (s *Server) DeclineRepresentationHandler(c *gin.Context) {
@@ -157,30 +173,40 @@ func (s *Server) DeclineRepresentationHandler(c *gin.Context) {
 		return
 	}
 
-	// check if the representation exists
 	representation, err := s.dbService.GetRepresentationByID(c, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, errorResponse(err))
 		return
 	}
-	// check if the representation is already accepted
+
+	// Check if the representation is already accepted or declined
 	if representation.Status == "accepted" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Representation request already accepted"})
 		return
 	}
-	// check if the representation is already declined
 	if representation.Status == "rejected" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Representation request already declined"})
 		return
 	}
 
-	representation, err = s.dbService.RejectRepresentation(c, id)
+	// Update the database
+	updatedRepresentation, err := s.dbService.RejectRepresentation(c, id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Representation request declined successfully", "representation": representation})
+	// Commit the decline to the ledger
+	network := s.gwService.GetNetwork("mychannel")
+	contract := network.GetContract("realestatesec")
+
+	_, err = contract.SubmitTransaction("DeclineRepresentation", strconv.FormatInt(id, 10))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit representation decline to the ledger"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Representation request declined successfully", "representation": updatedRepresentation})
 }
 
 type listRepresentationsRequest struct {
@@ -202,18 +228,23 @@ func (nt NullableTime) MarshalJSON() ([]byte, error) {
 	return json.Marshal(nt.Time)
 }
 
-// RepresentationsWithNullableTime is a struct to replace database.Representations for Swagger.
-type RepresentationsWithNullableTime struct {
-	ID         int64        `json:"id"`
-	UserID     int64        `json:"user_id"`
-	AgentID    int64        `json:"agent_id"`
-	StartDate  time.Time    `json:"start_date"`
-	EndDate    NullableTime `json:"end_date"`
-	Status     string       `json:"status"`
-	SignedDate NullableTime `json:"signed_date"`
-	CreatedAt  time.Time    `json:"created_at"`
-	UpdatedAt  time.Time    `json:"updated_at"`
-	IsActive   bool         `json:"is_active"`
+// RepresentationData is a struct to replace database.Representations for Swagger.
+type RepresentationData struct {
+	ID              int64        `json:"id"`
+	ClientID        int64        `json:"client_id"`
+	ClientFirstName string       `json:"client_first_name"`
+	ClientLastName  string       `json:"client_last_name"`
+	ClientUsername  string       `json:"client_username"`
+	AgentID         int64        `json:"agent_id"`
+	AgentFirstName  string       `json:"agent_first_name"`
+	AgentLastName   string       `json:"agent_last_name"`
+	AgentUsername   string       `json:"agent_username"`
+	StartDate       time.Time    `json:"start_date"`
+	EndDate         NullableTime `json:"end_date"`
+	Status          string       `json:"status"`
+	RequestedAt     time.Time    `json:"requested_at"`
+	SignedAt        NullableTime `json:"signed_at"`
+	IsActive        bool         `json:"is_active"`
 }
 
 // ListRepresentationsHandler handles fetching all representations for the authenticated user.
@@ -225,12 +256,12 @@ type RepresentationsWithNullableTime struct {
 // @Produce json
 // @Param limit query int false "Limit (default: 10)"
 // @Param offset query int false "Offset (default: 0)"
-// @Success 200 {array} RepresentationsWithNullableTime "List of representations"
-// @Failure 400 {object} string "Invalid request"
-// @Failure 401 {object} string "Unauthorized"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {array} RepresentationData "List of representations"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Security BearerAuth
-// @Router /agent/representations [get]
+// @Router /agent/representation [get]
 func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 	// Set default values
 	req := listRepresentationsRequest{
@@ -252,7 +283,7 @@ func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 		return
 	}
 
-	var representations []database.Representations
+	var representations []database.ListRepresentationsByAgentIDRow
 
 	// Fetch representations based on the user's role
 	if user.Role == database.UserRoleAgent {
@@ -262,11 +293,20 @@ func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 			Offset:  req.Offset,
 		})
 	} else {
-		representations, err = s.dbService.ListRepresentationsByUserID(c, database.ListRepresentationsByUserIDParams{
+		userRepresentations, err := s.dbService.ListRepresentationsByUserID(c, database.ListRepresentationsByUserIDParams{
 			UserID: user.ID,
 			Limit:  req.Limit,
 			Offset: req.Offset,
 		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+
+		// Convert user representations to agent representation format for consistency
+		for _, r := range userRepresentations {
+			representations = append(representations, database.ListRepresentationsByAgentIDRow(r))
+		}
 	}
 
 	if err != nil {
@@ -274,21 +314,26 @@ func (s *Server) ListRepresentationsHandler(c *gin.Context) {
 		return
 	}
 
-	// Convert database.Representations to RepresentationsWithNullableTime
-	var response []RepresentationsWithNullableTime
+	// Convert database rows to RepresentationData
+	var response []RepresentationData
 
 	for _, r := range representations {
-		response = append(response, RepresentationsWithNullableTime{
-			ID:         r.ID,
-			UserID:     r.UserID,
-			AgentID:    r.AgentID,
-			StartDate:  r.StartDate,
-			EndDate:    NullableTime{Time: r.EndDate.Time, Valid: r.EndDate.Valid},
-			Status:     string(r.Status),
-			SignedDate: NullableTime{Time: r.SignedDate.Time, Valid: r.SignedDate.Valid},
-			CreatedAt:  r.CreatedAt,
-			UpdatedAt:  r.UpdatedAt,
-			IsActive:   r.IsActive,
+		response = append(response, RepresentationData{
+			ID:              r.ID,
+			ClientID:        r.ClientID,
+			ClientFirstName: r.ClientFirstName,
+			ClientLastName:  r.ClientLastName,
+			ClientUsername:  r.ClientUsername,
+			AgentID:         r.AgentID,
+			AgentFirstName:  r.AgentFirstName,
+			AgentLastName:   r.AgentLastName,
+			AgentUsername:   r.AgentUsername,
+			StartDate:       r.StartDate,
+			EndDate:         NullableTime{Time: r.EndDate.Time, Valid: r.EndDate.Valid},
+			Status:          string(r.Status),
+			RequestedAt:     r.RequestedAt,
+			SignedAt:        NullableTime{Time: r.SignedAt.Time, Valid: r.SignedAt.Valid},
+			IsActive:        r.IsActive,
 		})
 	}
 
