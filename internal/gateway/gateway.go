@@ -1,10 +1,14 @@
 package gateway
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
 
+	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -83,4 +87,27 @@ func readFirstFile(dirPath string) ([]byte, error) {
 	}
 
 	return os.ReadFile(path.Join(dirPath, fileNames[0]))
+}
+
+func StartChaincodeEventListening(ctx context.Context, network *client.Network) {
+	fmt.Println("\n*** Start chaincode event listening")
+
+	events, err := network.ChaincodeEvents(ctx, "realestatesec")
+	if err != nil {
+		panic(fmt.Errorf("failed to start chaincode event listening: %w", err))
+	}
+
+	go func() {
+		for event := range events {
+			fmt.Printf("\n<-- Chaincode event received: %s - %s\n", event.EventName, event.Payload)
+		}
+	}()
+}
+
+func formatJSON(data []byte) string {
+	var result bytes.Buffer
+	if err := json.Indent(&result, data, "", "  "); err != nil {
+		panic(fmt.Errorf("failed to parse JSON: %w", err))
+	}
+	return result.String()
 }

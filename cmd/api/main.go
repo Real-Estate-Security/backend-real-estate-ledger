@@ -103,6 +103,13 @@ func main() {
 	}
 	defer gw.Close()
 
+	network := gw.GetNetwork("mychannel")
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	gateway.StartChaincodeEventListening(ctx, network)
+
 	// connect to the database
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbDatabase, config.DbSchema)
