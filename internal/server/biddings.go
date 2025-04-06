@@ -2,38 +2,46 @@ package server
 
 import (
 	"backend_real_estate/internal/database"
+	"database/sql"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
 type createBidRequest struct {
-	ListingID     int64         `json:"listing_id" binding:"required"`
-	BuyerID       int64         `json:"buyer_id" binding:"required"`
-	AgentID       int64         `json:"agent_id" binding:"required"`
-	Amount        string        `json:"amount" binding:"required"`
-	PreviousBidID int64 `json:"previous_bid_id binding:"required""`
+	ListingID     int64  `json:"ListingID" binding:"required"`
+	BuyerID       int64  `json:"BuyerID" binding:"required"`
+	AgentID       int64  `json:"AgentID" binding:"required"`
+	Amount        string `json:"Amount" binding:"required"`
+	PreviousBidID int64  `json:"PreviousBidID,omitempty"`
 }
 
 type bidResponse struct {
-	ListingID     int64         `json:"listing_id" binding:"required"`
-	BuyerID       int64         `json:"buyer_id" binding:"required"`
-	AgentID       int64         `json:"agent_id" binding:"required"`
-	Amount        string        `json:"amount" binding:"required"`
-	PreviousBidID int64 `json:"previous_bid_id binding:"required""`
+	ID            int64  `json:"ID" binding:"required"`
+	ListingID     int64  `json:"ListingID" binding:"required"`
+	BuyerID       int64  `json:"BuyerID" binding:"required"`
+	AgentID       int64  `json:"AgentID" binding:"required"`
+	Amount        string `json:"Amount" binding:"required"`
+	PreviousBidID int64  `json:"PreviousBidID" binding:"required"`
 }
 
 func createBidResponse(currentBid database.Bids) bidResponse {
 	return bidResponse{
-		ListingID:  currentBid.ListingID,
-		BuyerID: currentBid.BuyerID,
-		AgentID: currentBid.AgentID,
-		Amount: currentBid.Amount,
-		PreviousBidID: int(currentBid.PreviousBidID),
-		
+		ID: currentBid.ID,
+		ListingID: currentBid.ListingID,
+		BuyerID:   currentBid.BuyerID,
+		AgentID:   currentBid.AgentID,
+		Amount:    currentBid.Amount,
+		PreviousBidID: func() int64 {
+			if currentBid.PreviousBidID.Valid {
+				return currentBid.PreviousBidID.Int64
+			}
+			return 0 // or another default value
+		}(),
 	}
 }
 
-// createBidHandler handles the request for create a bid 
+// createBidHandler handles the request for create a bid
 //
 // @Summary create a bid
 // @Description create a bid
@@ -57,15 +65,18 @@ func (s *Server) createBidHandler(c *gin.Context) {
 	dbParam.Amount = req.Amount
 	dbParam.BuyerID = req.BuyerID
 	dbParam.ListingID = req.ListingID
-	dbParam.PreviousBidID = req.PreviousBidID
+	dbParam.PreviousBidID = sql.NullInt64{
+		Int64: req.PreviousBidID,
+		Valid: req.PreviousBidID != 0, // Adjust logic if 0 is a valid value
+	}
 
-	property, err := s.dbService.CreateBid(c, dbParam)
+	bid, err := s.dbService.CreateBid(c, dbParam)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	resp := getPropertyResponse(property)
+	resp := createBidResponse(bid)
 
 	c.JSON(http.StatusOK, resp)
 }

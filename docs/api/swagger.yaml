@@ -29,6 +29,46 @@ definitions:
       user_id:
         type: integer
     type: object
+  server.bidResponse:
+    properties:
+      AgentID:
+        type: integer
+      Amount:
+        type: string
+      BuyerID:
+        type: integer
+      ID:
+        type: integer
+      ListingID:
+        type: integer
+      PreviousBidID:
+        type: integer
+    required:
+    - AgentID
+    - Amount
+    - BuyerID
+    - ID
+    - ListingID
+    - PreviousBidID
+    type: object
+  server.createBidRequest:
+    properties:
+      AgentID:
+        type: integer
+      Amount:
+        type: string
+      BuyerID:
+        type: integer
+      ListingID:
+        type: integer
+      PreviousBidID:
+        type: integer
+    required:
+    - AgentID
+    - Amount
+    - BuyerID
+    - ListingID
+    type: object
   server.createUserRequest:
     properties:
       dob:
@@ -345,6 +385,36 @@ paths:
       summary: Request representation
       tags:
       - agent
+  /bidding/createBid:
+    post:
+      consumes:
+      - application/json
+      description: create a bid
+      parameters:
+      - description: create a bid
+        in: body
+        name: createBidRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.createBidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.bidResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: create a bid
+      tags:
+      - bidding
   /health:
     get:
       description: Returns the health status of the server
@@ -358,6 +428,21 @@ paths:
       summary: Health Check
       tags:
       - health
+  /hello-world:
+    get:
+      consumes:
+      - application/json
+      description: HelloWorld example
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: HelloWorld example
+      tags:
+      - example
   /listing/getListingByPropertyID:
     post:
       consumes:
@@ -418,21 +503,6 @@ paths:
       summary: get property by id
       tags:
       - property
-  /hello-world:
-    get:
-      consumes:
-      - application/json
-      description: HelloWorld example
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: HelloWorld example
-      tags:
-      - example
   /user/login:
     post:
       consumes:

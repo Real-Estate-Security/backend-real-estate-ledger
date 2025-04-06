@@ -245,6 +245,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/bidding/createBid": {
+            "post": {
+                "description": "create a bid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bidding"
+                ],
+                "summary": "create a bid",
+                "parameters": [
+                    {
+                        "description": "create a bid",
+                        "name": "createBidRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.createBidRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.bidResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Returns the health status of the server",
@@ -255,6 +301,29 @@ const docTemplate = `{
                     "health"
                 ],
                 "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/hello-world": {
+            "get": {
+                "description": "HelloWorld example",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "HelloWorld example",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -350,29 +419,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/hello-world": {
-            "get": {
-                "description": "HelloWorld example",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "example"
-                ],
-                "summary": "HelloWorld example",
-                "responses": {
-                    "200": {
-                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -556,6 +602,63 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.bidResponse": {
+            "type": "object",
+            "required": [
+                "AgentID",
+                "Amount",
+                "BuyerID",
+                "ID",
+                "ListingID",
+                "PreviousBidID"
+            ],
+            "properties": {
+                "AgentID": {
+                    "type": "integer"
+                },
+                "Amount": {
+                    "type": "string"
+                },
+                "BuyerID": {
+                    "type": "integer"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "ListingID": {
+                    "type": "integer"
+                },
+                "PreviousBidID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.createBidRequest": {
+            "type": "object",
+            "required": [
+                "AgentID",
+                "Amount",
+                "BuyerID",
+                "ListingID"
+            ],
+            "properties": {
+                "AgentID": {
+                    "type": "integer"
+                },
+                "Amount": {
+                    "type": "string"
+                },
+                "BuyerID": {
+                    "type": "integer"
+                },
+                "ListingID": {
+                    "type": "integer"
+                },
+                "PreviousBidID": {
                     "type": "integer"
                 }
             }

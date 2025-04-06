@@ -63,6 +63,7 @@ func (server *Server) RegisterRoutes() {
 
 	router.POST("/property/getPropertyByID", server.getPropertyByIDHandler)
 	router.POST("/listing/getListingByPropertyID", server.getListingByPropertyIDHandler)
+	router.POST("/bidding/createBid", server.createBidHandler)
 
 	// user routes protected
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
