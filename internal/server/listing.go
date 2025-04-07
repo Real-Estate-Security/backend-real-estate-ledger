@@ -35,14 +35,14 @@ func getListingDisplayResponse(display database.Properties) listingResponse {
 // @Tags listing
 // @Accept json
 // @Produce json
-// @Param listingDisplayResponse body getListingByIDRequest true "get listig by property id"
+// @Param limit query int false "Limit (default: 10)"
 // @Success 200 {object} listingDisplayResponse
 // @Failure 400 {object} string
 // @Failure 500 {object} string
 // @Router /listing/getListings [get]
 func (s *Server) getListingDisplayHandler(c *gin.Context) {
 
-	listing, err := s.dbService.GetListingByID(c, req.PropertyID)
+	listing, err := s.dbService.ListProperties(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
