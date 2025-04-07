@@ -60,6 +60,7 @@ func (server *Server) RegisterRoutes() {
 	// user routes unprotected
 	router.POST("/user/signup", server.CreateUserHandler)
 	router.POST("/user/login", server.LoginUserHandler)
+	router.GET("/listing/getListingDisplayResponse", server.getListingDisplayResponse) //CHANGE MIGHT BE NEEDED
 
 	router.POST("/property/getPropertyByID", server.getPropertyByIDHandler)
 	router.POST("/listing/getListingByPropertyID", server.getListingByPropertyIDHandler)

@@ -3,7 +3,6 @@ package server
 import (
 	"backend_real_estate/internal/database"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,14 +16,14 @@ type listingDisplayResponse struct {
 	Bathrooms int32  `json:"Bathrooms" binding:required`
 }
 
-func getListingDisplayResponse(display database.Properties) listingResponse {
+func getListingDisplayResponse(display []database.Properties) listingDisplayResponse {
 	return listingDisplayResponse{
 		Address:   display.Address,
 		City: 	   display.City,
 		State: 	   display.State,
 		Zipcode:   display.Zipcode,
 		Bedrooms:  display.Bedrooms,
-		Bathrooms: display.Bathrooms
+		Bathrooms: display.Bathrooms,
 	}
 }
 
@@ -41,6 +40,8 @@ func getListingDisplayResponse(display database.Properties) listingResponse {
 // @Failure 500 {object} string
 // @Router /listing/getListings [get]
 func (s *Server) getListingDisplayHandler(c *gin.Context) {
+
+	var listing[]database.Properties
 
 	listing, err := s.dbService.ListProperties(c)
 	if err != nil {
