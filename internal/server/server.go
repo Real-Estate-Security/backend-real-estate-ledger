@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
 	_ "github.com/joho/godotenv/autoload"
 
 	"backend_real_estate/internal/database"
@@ -17,13 +18,14 @@ type Server struct {
 	config     util.Config
 	tokenMaker token.Maker
 	dbService  database.Service
+	gwService  *client.Gateway
 	router     *gin.Engine
 }
 
-func NewHTTPServer(config util.Config, dbService database.Service) (*http.Server, error) {
+func NewHTTPServer(config util.Config, dbService database.Service, gwService *client.Gateway) (*http.Server, error) {
 
 	// Create a new server
-	NewServer, err := NewGinServer(config, dbService)
+	NewServer, err := NewGinServer(config, dbService, gwService)
 
 	if err != nil {
 		return nil, err
@@ -41,7 +43,7 @@ func NewHTTPServer(config util.Config, dbService database.Service) (*http.Server
 	return server, nil
 }
 
-func NewGinServer(config util.Config, dbService database.Service) (*Server, error) {
+func NewGinServer(config util.Config, dbService database.Service, gwService *client.Gateway) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
@@ -51,6 +53,7 @@ func NewGinServer(config util.Config, dbService database.Service) (*Server, erro
 		config:     config,
 		tokenMaker: tokenMaker,
 		dbService:  dbService,
+		gwService:  gwService,
 	}
 
 	ginServer.RegisterRoutes()

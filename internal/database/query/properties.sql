@@ -1,3 +1,7 @@
+-- name: GetPropertyByID :one
+SELECT * FROM properties
+WHERE id = $1;
+
 -- name: CreateProperty :one
 INSERT INTO properties(
     owner,

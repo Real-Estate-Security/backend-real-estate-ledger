@@ -35,3 +35,6 @@ main
 
 # Log files
 *.log
+
+# Ledger keys
+ledger_keys

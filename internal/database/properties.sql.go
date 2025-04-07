@@ -9,61 +9,6 @@ import (
 	"context"
 )
 
-const createProperty = `-- name: CreateProperty :one
-INSERT INTO properties(
-    owner,
-    address,
-    city,
-    state,
-    zipcode,
-    bedrooms,
-    bathrooms
-) VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5,
-    $6,
-    $7
-)
-RETURNING id, owner, address, city, state, zipcode, bedrooms, bathrooms
-`
-
-type CreatePropertyParams struct {
-	Owner     int64  `json:"owner"`
-	Address   string `json:"address"`
-	City      string `json:"city"`
-	State     string `json:"state"`
-	Zipcode   int32  `json:"zipcode"`
-	Bedrooms  int32  `json:"bedrooms"`
-	Bathrooms int32  `json:"bathrooms"`
-}
-
-func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) (Properties, error) {
-	row := q.db.QueryRowContext(ctx, createProperty,
-		arg.Owner,
-		arg.Address,
-		arg.City,
-		arg.State,
-		arg.Zipcode,
-		arg.Bedrooms,
-		arg.Bathrooms,
-	)
-	var i Properties
-	err := row.Scan(
-		&i.ID,
-		&i.Owner,
-		&i.Address,
-		&i.City,
-		&i.State,
-		&i.Zipcode,
-		&i.Bedrooms,
-		&i.Bathrooms,
-	)
-	return i, err
-}
-
 const getPropertyByID = `-- name: GetPropertyByID :one
 SELECT id, owner, address, city, state, zipcode, bedrooms, bathrooms FROM properties
 WHERE id = $1
@@ -71,72 +16,6 @@ WHERE id = $1
 
 func (q *Queries) GetPropertyByID(ctx context.Context, id int64) (Properties, error) {
 	row := q.db.QueryRowContext(ctx, getPropertyByID, id)
-	var i Properties
-	err := row.Scan(
-		&i.ID,
-		&i.Owner,
-		&i.Address,
-		&i.City,
-		&i.State,
-		&i.Zipcode,
-		&i.Bedrooms,
-		&i.Bathrooms,
-	)
-	return i, err
-}
-
-const listProperties = `-- name: ListProperties :many
-SELECT id, owner, address, city, state, zipcode, bedrooms, bathrooms FROM properties
-ORDER BY id
-`
-
-func (q *Queries) ListProperties(ctx context.Context) ([]Properties, error) {
-	rows, err := q.db.QueryContext(ctx, listProperties)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Properties{}
-	for rows.Next() {
-		var i Properties
-		if err := rows.Scan(
-			&i.ID,
-			&i.Owner,
-			&i.Address,
-			&i.City,
-			&i.State,
-			&i.Zipcode,
-			&i.Bedrooms,
-			&i.Bathrooms,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const updatePropertyOwner = `-- name: UpdatePropertyOwner :one
-UPDATE properties 
-SET 
-    owner = $1
-WHERE id = $2
-RETURNING id, owner, address, city, state, zipcode, bedrooms, bathrooms
-`
-
-type UpdatePropertyOwnerParams struct {
-	Owner int64 `json:"owner"`
-	ID    int64 `json:"id"`
-}
-
-func (q *Queries) UpdatePropertyOwner(ctx context.Context, arg UpdatePropertyOwnerParams) (Properties, error) {
-	row := q.db.QueryRowContext(ctx, updatePropertyOwner, arg.Owner, arg.ID)
 	var i Properties
 	err := row.Scan(
 		&i.ID,

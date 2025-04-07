@@ -27,7 +27,11 @@ func errorResponse(err error) gin.H {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @BasePath /v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your Bearer token in the format: Bearer <token>
+
 func (server *Server) RegisterRoutes() {
 	router := gin.Default()
 
@@ -38,20 +42,39 @@ func (server *Server) RegisterRoutes() {
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/"
+	// set base path for swagger
 
 	// general health check routes
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router.GET("/hello-world", server.HelloWorldHandler)
 	router.GET("/health", server.healthHandler)
 
+	//ledger routes
+	router.GET("/properties", server.GetAllProperties)
+	router.POST("/properties", server.RegisterProperty)
+	router.POST("/properties/list/:id", server.ListProperty)
+	router.POST("/properties/bid/:id", server.PlaceBid)
+	router.DELETE("/properties/bid/:propertyID/:bidID", server.RejectBid)
+
 	// user routes unprotected
 	router.POST("/user/signup", server.CreateUserHandler)
 	router.POST("/user/login", server.LoginUserHandler)
 
+	router.POST("/property/getPropertyByID", server.getPropertyByIDHandler)
+	router.POST("/listing/getListingByPropertyID", server.getListingByPropertyIDHandler)
+
 	// user routes protected
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	authRoutes.GET("/user/me", server.UserMeHandler)
+
+	// agent routes protected
+	authRoutes.POST("/agent/request-representation", server.RequestRepresentationHandler)
+	authRoutes.POST("/agent/accept-representation/:id", server.AcceptRepresentationHandler)
+	authRoutes.POST("/agent/decline-representation/:id", server.DeclineRepresentationHandler)
+
+	// agent and user routes protected
+	authRoutes.GET("/agent/representation", server.ListRepresentationsHandler)
 
 	server.router = router
 }
@@ -64,7 +87,7 @@ func (server *Server) RegisterRoutes() {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /example/helloworld [get]
+// @Router /hello-world [get]
 func (s *Server) HelloWorldHandler(c *gin.Context) {
 	resp := make(map[string]string)
 	resp["message"] = "Hello World"
