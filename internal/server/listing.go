@@ -16,7 +16,7 @@ type listingDisplayResponse struct {
 	Bathrooms int32  `json:"Bathrooms" binding:required`
 }
 
-func getListingDisplayResponse(display []database.Properties) listingDisplayResponse {
+func getListingDisplayResponse(display database.Properties) listingDisplayResponse {
 	return listingDisplayResponse{
 		Address:   display.Address,
 		City: 	   display.City,
@@ -41,7 +41,7 @@ func getListingDisplayResponse(display []database.Properties) listingDisplayResp
 // @Router /listing/getListings [get]
 func (s *Server) getListingDisplayHandler(c *gin.Context) {
 
-	var listing[]database.Properties
+	// var listing[]database.Properties
 
 	listing, err := s.dbService.ListProperties(c)
 	if err != nil {
