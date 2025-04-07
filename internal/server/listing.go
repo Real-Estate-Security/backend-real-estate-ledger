@@ -39,17 +39,19 @@ func getListingDisplayResponse(display database.Properties) listingDisplayRespon
 // @Failure 400 {object} string
 // @Failure 500 {object} string
 // @Router /listing/getListings [get]
-func (s *Server) getListingDisplayHandler(c *gin.Context) {
+func (s *Server) GetListingDisplayHandler(c *gin.Context) {
+	listings, err := s.dbService.ListProperties(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+	var responses []listingDisplayResponse
 
-	// var listing[]database.Properties
-
-	listing, err := s.dbService.ListProperties(c)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
+	for _, listing := range (listings) {
+		display := getListingDisplayResponse(listing)
+		
+		responses = append(responses, display)
 	}
 
-	resp := getListingDisplayResponse(listing)
-
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, responses)
 }
