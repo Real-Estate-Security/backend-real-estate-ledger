@@ -60,7 +60,7 @@ func (server *Server) RegisterRoutes() {
 	// user routes unprotected
 	router.POST("/user/signup", server.CreateUserHandler)
 	router.POST("/user/login", server.LoginUserHandler)
-	router.GET("/listing/getListingDisplayResponse", server.getListingDisplayResponse) //CHANGE MIGHT BE NEEDED
+	router.GET("/listings", server.GetListingDisplayHandler)
 
 	router.POST("/property/getPropertyByID", server.getPropertyByIDHandler)
 	router.POST("/listing/getListingByPropertyID", server.getListingByPropertyIDHandler)
@@ -106,4 +106,3 @@ func (s *Server) HelloWorldHandler(c *gin.Context) {
 func (s *Server) healthHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, s.dbService.Health())
 }
-
