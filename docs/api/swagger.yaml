@@ -1,4 +1,47 @@
 definitions:
+  server.createListingRequest:
+    properties:
+      Address:
+        type: string
+      AgentEmail:
+        type: string
+      AgentFirstName:
+        type: string
+      AgentLastName:
+        type: string
+      Bathrooms:
+        type: integer
+      Bedrooms:
+        type: integer
+      City:
+        type: string
+      Description:
+        type: string
+      OwnerEmail:
+        type: string
+      OwnerFirstName:
+        type: string
+      OwnerLastName:
+        type: string
+      Price:
+        type: string
+      State:
+        type: string
+      Zipcode:
+        type: integer
+    required:
+    - Address
+    - AgentEmail
+    - Bathrooms
+    - Bedrooms
+    - City
+    - OwnerEmail
+    - OwnerFirstName
+    - OwnerLastName
+    - Price
+    - State
+    - Zipcode
+    type: object
   server.createUserRequest:
     properties:
       dob:
@@ -107,6 +150,37 @@ paths:
       summary: Health Check
       tags:
       - health
+  /properties:
+    post:
+      consumes:
+      - application/json
+      description: creating a listing for a property
+      parameters:
+      - description: creating a listing for a property
+        in: body
+        name: createListingRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.createListingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: given listing, create property if doesn't exist and then create listing
+        for that property
+      tags:
+      - properties
   /user/login:
     post:
       consumes:

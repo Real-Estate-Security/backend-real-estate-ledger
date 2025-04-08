@@ -42,7 +42,7 @@ CREATE TABLE "listings" (
   "listing_status" varchar NOT NULL DEFAULT 'active',
   "listing_date" timestamptz NOT NULL DEFAULT (now()),
   "description" text,
-  "accepted_bid_id" bigserial UNIQUE
+  "accepted_bid_id" bigint DEFAULT NULL
 );
 
 CREATE TABLE "bids" (

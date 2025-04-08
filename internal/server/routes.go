@@ -38,7 +38,7 @@ func (server *Server) RegisterRoutes() {
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = ""
 
 	// general health check routes
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
@@ -52,6 +52,9 @@ func (server *Server) RegisterRoutes() {
 	// user routes protected
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	authRoutes.GET("/user/me", server.UserMeHandler)
+
+	// properties/listings routes protected
+	router.POST("/properties", server.CreatePropertyAndListingHandler)
 
 	server.router = router
 }

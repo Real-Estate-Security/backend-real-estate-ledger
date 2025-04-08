@@ -64,6 +64,27 @@ func (q *Queries) CreateProperty(ctx context.Context, arg CreatePropertyParams) 
 	return i, err
 }
 
+const getPropertyByAddress = `-- name: GetPropertyByAddress :one
+SELECT id, owner, address, city, state, zipcode, bedrooms, bathrooms FROM properties
+WHERE address = $1
+`
+
+func (q *Queries) GetPropertyByAddress(ctx context.Context, address string) (Properties, error) {
+	row := q.db.QueryRowContext(ctx, getPropertyByAddress, address)
+	var i Properties
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Address,
+		&i.City,
+		&i.State,
+		&i.Zipcode,
+		&i.Bedrooms,
+		&i.Bathrooms,
+	)
+	return i, err
+}
+
 const getPropertyByID = `-- name: GetPropertyByID :one
 SELECT id, owner, address, city, state, zipcode, bedrooms, bathrooms FROM properties
 WHERE id = $1

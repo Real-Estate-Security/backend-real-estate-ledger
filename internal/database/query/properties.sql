@@ -22,6 +22,10 @@ RETURNING *;
 SELECT * FROM properties
 WHERE id = $1;
 
+-- name: GetPropertyByAddress :one
+SELECT * FROM properties
+WHERE address = $1;
+
 -- name: ListProperties :many
 SELECT * FROM properties
 ORDER BY id;
