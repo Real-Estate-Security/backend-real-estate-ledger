@@ -106,4 +106,3 @@ func (s *Server) HelloWorldHandler(c *gin.Context) {
 func (s *Server) healthHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, s.dbService.Health())
 }
-
