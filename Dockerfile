@@ -30,7 +30,7 @@ RUN chmod +x /app/wait-for.sh
 
 # RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
 
-EXPOSE 8080
+EXPOSE 8000
 
 # now run "make air"
 CMD ["/app/main"]
