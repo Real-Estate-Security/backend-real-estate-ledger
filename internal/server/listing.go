@@ -16,15 +16,24 @@ type listingDisplayResponse struct {
 	Bathrooms int32  `json:"Bathrooms" binding:required`
 }
 
-func getListingDisplayResponse(display database.Properties) listingDisplayResponse {
-	return listingDisplayResponse{
-		Address:   display.Address,
-		City: 	   display.City,
-		State: 	   display.State,
-		Zipcode:   display.Zipcode,
-		Bedrooms:  display.Bedrooms,
-		Bathrooms: display.Bathrooms,
+func getListingDisplayResponse(display []database.Properties) []listingDisplayResponse {
+
+	var listings []listingDisplayResponse
+
+	for i := 0; i < len(display); i++ {
+		listing := listingDisplayResponse{
+			Address:   display[i].Address,
+			City:      display[i].City,
+			State:     display[i].State,
+			Zipcode:   display[i].Zipcode,
+			Bedrooms:  display[i].Bedrooms,
+			Bathrooms: display[i].Bathrooms,
+		}
+
+		listings = append(listings, listing)
 	}
+
+	return listings
 }
 
 // getListingDisplayHandler handles the reponse for get property information
@@ -40,18 +49,15 @@ func getListingDisplayResponse(display database.Properties) listingDisplayRespon
 // @Failure 500 {object} string
 // @Router /listing/getListings [get]
 func (s *Server) GetListingDisplayHandler(c *gin.Context) {
-	listings, err := s.dbService.ListProperties(c)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
-		}
-	var responses []listingDisplayResponse
 
-	for _, listing := range (listings) {
-		display := getListingDisplayResponse(listing)
-		
-		responses = append(responses, display)
+	listings, err := s.dbService.ListProperties(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
-	c.JSON(http.StatusOK, responses)
+	resp := getListingDisplayResponse(listings)
+
+	c.JSON(http.StatusOK, resp)
+
 }
