@@ -395,6 +395,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/properties": {
+            "post": {
+                "description": "creating a listing for a property",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "properties"
+                ],
+                "summary": "given listing, create property if doesn't exist and then create listing for that property",
+                "parameters": [
+                    {
+                        "description": "creating a listing for a property",
+                        "name": "createListingRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.createListingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/login": {
             "post": {
                 "description": "Authenticates a user and returns an access token along with user details.",
@@ -529,64 +575,63 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "server.NullableTime": {
+        "server.createListingRequest": {
             "type": "object",
+            "required": [
+                "Address",
+                "AgentEmail",
+                "Bathrooms",
+                "Bedrooms",
+                "City",
+                "OwnerEmail",
+                "OwnerFirstName",
+                "OwnerLastName",
+                "Price",
+                "State",
+                "Zipcode"
+            ],
             "properties": {
-                "time": {
+                "Address": {
                     "type": "string"
                 },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "server.RepresentationData": {
-            "type": "object",
-            "properties": {
-                "agent_first_name": {
+                "AgentEmail": {
                     "type": "string"
                 },
-                "agent_id": {
+                "AgentFirstName": {
+                    "type": "string"
+                },
+                "AgentLastName": {
+                    "type": "string"
+                },
+                "Bathrooms": {
                     "type": "integer"
                 },
-                "agent_last_name": {
-                    "type": "string"
-                },
-                "agent_username": {
-                    "type": "string"
-                },
-                "client_first_name": {
-                    "type": "string"
-                },
-                "client_id": {
+                "Bedrooms": {
                     "type": "integer"
                 },
-                "client_last_name": {
+                "City": {
                     "type": "string"
                 },
-                "client_username": {
+                "Description": {
                     "type": "string"
                 },
-                "end_date": {
-                    "$ref": "#/definitions/server.NullableTime"
+                "OwnerEmail": {
+                    "type": "string"
                 },
-                "id": {
+                "OwnerFirstName": {
+                    "type": "string"
+                },
+                "OwnerLastName": {
+                    "type": "string"
+                },
+                "Price": {
+                    "type": "string"
+                },
+                "State": {
+                    "type": "string"
+                },
+                "Zipcode": {
                     "type": "integer"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "requested_at": {
-                    "type": "string"
-                },
-                "signed_at": {
-                    "$ref": "#/definitions/server.NullableTime"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },

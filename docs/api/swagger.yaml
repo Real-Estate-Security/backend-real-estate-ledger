@@ -1,43 +1,46 @@
 definitions:
-  server.NullableTime:
+  server.createListingRequest:
     properties:
-      time:
+      Address:
         type: string
-      valid:
-        type: boolean
-    type: object
-  server.RepresentationData:
-    properties:
-      agent_first_name:
+      AgentEmail:
         type: string
-      agent_id:
+      AgentFirstName:
+        type: string
+      AgentLastName:
+        type: string
+      Bathrooms:
         type: integer
-      agent_last_name:
-        type: string
-      agent_username:
-        type: string
-      client_first_name:
-        type: string
-      client_id:
+      Bedrooms:
         type: integer
-      client_last_name:
+      City:
         type: string
-      client_username:
+      Description:
         type: string
-      end_date:
-        $ref: '#/definitions/server.NullableTime'
-      id:
+      OwnerEmail:
+        type: string
+      OwnerFirstName:
+        type: string
+      OwnerLastName:
+        type: string
+      Price:
+        type: string
+      State:
+        type: string
+      Zipcode:
         type: integer
-      is_active:
-        type: boolean
-      requested_at:
-        type: string
-      signed_at:
-        $ref: '#/definitions/server.NullableTime'
-      start_date:
-        type: string
-      status:
-        type: string
+    required:
+    - Address
+    - AgentEmail
+    - Bathrooms
+    - Bedrooms
+    - City
+    - OwnerEmail
+    - OwnerFirstName
+    - OwnerLastName
+    - Price
+    - State
+    - Zipcode
     type: object
   server.createUserRequest:
     properties:
@@ -427,6 +430,21 @@ paths:
             type: string
       summary: get listing by property id
       tags:
+<<<<<<< HEAD
+      - health
+  /properties:
+    post:
+      consumes:
+      - application/json
+      description: creating a listing for a property
+      parameters:
+      - description: creating a listing for a property
+        in: body
+        name: createListingRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.createListingRequest'
+=======
       - listing
   /property/getPropertyByID:
     post:
@@ -440,13 +458,18 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/server.getPropertyByIDRequest'
+>>>>>>> origin/FEATURE/listing
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
+<<<<<<< HEAD
+            type: string
+=======
             $ref: '#/definitions/server.propertyResponse'
+>>>>>>> origin/FEATURE/listing
         "400":
           description: Bad Request
           schema:
@@ -455,9 +478,16 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+<<<<<<< HEAD
+      summary: given listing, create property if doesn't exist and then create listing
+        for that property
+      tags:
+      - properties
+=======
       summary: get property by id
       tags:
       - property
+>>>>>>> origin/FEATURE/listing
   /user/login:
     post:
       consumes:
