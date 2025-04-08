@@ -8,12 +8,19 @@ import (
 )
 
 type listingDisplayResponse struct {
-	Address   string `json:"Address" binding:required`
-	City      string `json:"City" binding:required`
-	State     string `json:"State" binding:required`
-	Zipcode   int32  `json:"Zipcode" binding:required`
-	Bedrooms  int32  `json:"Bedrooms" binding:required`
-	Bathrooms int32  `json:"Bathrooms" binding:required`
+	Price         string         `json:"price"`
+	ListingStatus string         `json:"listing_status"`
+	ListingDate   time.Time      `json:"listing_date"`
+	Description   sql.NullString `json:"description"`
+	FirstName     string         `json:"first_name"`
+	LastName      string         `json:"last_name"`
+	Email         string         `json:"email"`
+	Address       string         `json:"address"`
+	City          string         `json:"city"`
+	State         string         `json:"state"`
+	Zipcode       int32          `json:"zipcode"`
+	Bedrooms      int32          `json:"bedrooms"`
+	Bathrooms     int32          `json:"bathrooms"`
 }
 
 func getListingDisplayResponse(display []database.GetListingsRow) []listingDisplayResponse {
@@ -22,12 +29,20 @@ func getListingDisplayResponse(display []database.GetListingsRow) []listingDispl
 
 	for i := 0; i < len(display); i++ {
 		listing := listingDisplayResponse{
-			Address:   display[i].Address,
-			City:      display[i].City,
-			State:     display[i].State,
-			Zipcode:   display[i].Zipcode,
-			Bedrooms:  display[i].Bedrooms,
-			Bathrooms: display[i].Bathrooms,
+			Price:	   		display[i].Price,
+			ListingStatus:  display[i].ListingStatus,
+			ListingDate:    display[i].ListingDate,
+			Description:    display[i].Description,
+			FirstName: 		display[i].FirstName,
+			LastName: 		display[i].LastName,
+			Email:			display[i].Email,
+			Address:   		display[i].Address,
+			City:      		display[i].City,
+			State:     		display[i].State,
+			Zipcode:   		display[i].Zipcode,
+			Bedrooms:  		display[i].Bedrooms,
+			Bathrooms: 		display[i].Bathrooms,
+			Bathrooms: 		display[i].Bathrooms,
 		}
 
 		listings = append(listings, listing)
