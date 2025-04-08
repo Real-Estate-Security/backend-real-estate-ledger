@@ -55,8 +55,6 @@ func (s *Server) GetListingDisplayHandler(c *gin.Context) {
 		return
 	}
 
-	//resp := getListingDisplayResponse(listings)
-
 	c.JSON(http.StatusOK, listings)
 
 }
