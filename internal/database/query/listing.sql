@@ -48,4 +48,4 @@ properties.address, properties.city, properties.state, properties.zipcode,
 properties.bedrooms, properties.bathrooms 
 from listings
 JOIN properties on listings.property_id = properties.id
-JOIN users on listings.agent_id = users.id
+JOIN users on listings.agent_id = users.id;
