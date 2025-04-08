@@ -11,6 +11,49 @@ import (
 	"time"
 )
 
+type AgreementStatus string
+
+const (
+	AgreementStatusPending  AgreementStatus = "pending"
+	AgreementStatusAccepted AgreementStatus = "accepted"
+	AgreementStatusRejected AgreementStatus = "rejected"
+)
+
+func (e *AgreementStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AgreementStatus(s)
+	case string:
+		*e = AgreementStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AgreementStatus: %T", src)
+	}
+	return nil
+}
+
+type NullAgreementStatus struct {
+	AgreementStatus AgreementStatus `json:"AgreementStatus"`
+	Valid           bool            `json:"valid"` // Valid is true if AgreementStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAgreementStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.AgreementStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AgreementStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAgreementStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AgreementStatus), nil
+}
+
 type BidStatus string
 
 const (
@@ -140,7 +183,10 @@ type Representations struct {
 	// Date when representation started
 	StartDate time.Time `json:"start_date"`
 	// Date when representation ended, null if still active
-	EndDate sql.NullTime `json:"end_date"`
+	EndDate     sql.NullTime    `json:"end_date"`
+	Status      AgreementStatus `json:"status"`
+	RequestedAt time.Time       `json:"requested_at"`
+	SignedAt    sql.NullTime    `json:"signed_at"`
 	// Whether the representation is currently active
 	IsActive bool `json:"is_active"`
 }

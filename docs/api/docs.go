@@ -15,7 +15,272 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/example/helloworld": {
+        "/agent/accept-representation/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows an agent to accept a representation request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "Accept representation request",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Representation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Representation request accepted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Representation not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/agent/decline-representation/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows an agent to decline a representation request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "Decline representation request",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Representation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Representation request declined successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Representation not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/agent/representation": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Fetches all representations for the authenticated user, whether they are an agent or a regular user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "representations"
+                ],
+                "summary": "List representations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of representations",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/server.RepresentationData"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/agent/request-representation": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows an agent to request representation for a user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "Request representation",
+                "parameters": [
+                    {
+                        "description": "Request Representation Request",
+                        "name": "requestAgentRepresentationRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.requestAgentRepresentationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Representation request submitted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Client not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns the health status of the server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/hello-world": {
             "get": {
                 "description": "HelloWorld example",
                 "consumes": [
@@ -38,19 +303,91 @@ const docTemplate = `{
                 }
             }
         },
-        "/health": {
-            "get": {
-                "description": "Returns the health status of the server",
+        "/listing/getListingByPropertyID": {
+            "post": {
+                "description": "get listing by property id",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "listing"
                 ],
-                "summary": "Health Check",
+                "summary": "get listing by property id",
+                "parameters": [
+                    {
+                        "description": "get listig by property id",
+                        "name": "getListingByIDRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.getListingByIDRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.listingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/property/getPropertyByID": {
+            "post": {
+                "description": "get property by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "property"
+                ],
+                "summary": "get property by id",
+                "parameters": [
+                    {
+                        "description": "get property by id",
+                        "name": "getPropertyByIDRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.getPropertyByIDRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.propertyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
@@ -158,6 +495,11 @@ const docTemplate = `{
         },
         "/user/me": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves the information of the authenticated user based on the authorization token provided.",
                 "consumes": [
                     "application/json"
@@ -333,6 +675,75 @@ const docTemplate = `{
                 }
             }
         },
+        "server.getListingByIDRequest": {
+            "type": "object",
+            "required": [
+                "PropertyID",
+                "Username"
+            ],
+            "properties": {
+                "PropertyID": {
+                    "type": "integer"
+                },
+                "Username": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.getPropertyByIDRequest": {
+            "type": "object",
+            "required": [
+                "PropertyID",
+                "Username"
+            ],
+            "properties": {
+                "PropertyID": {
+                    "type": "integer"
+                },
+                "Username": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.listingResponse": {
+            "type": "object",
+            "required": [
+                "AcceptedBidID",
+                "AgentID",
+                "Description",
+                "ID",
+                "ListingDate",
+                "ListingStatus",
+                "Price",
+                "PropertyID"
+            ],
+            "properties": {
+                "AcceptedBidID": {
+                    "type": "integer"
+                },
+                "AgentID": {
+                    "type": "integer"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "ListingDate": {
+                    "type": "string"
+                },
+                "ListingStatus": {
+                    "type": "string"
+                },
+                "Price": {
+                    "type": "string"
+                },
+                "PropertyID": {
+                    "type": "integer"
+                }
+            }
+        },
         "server.loginUserRequest": {
             "type": "object",
             "required": [
@@ -357,6 +768,64 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/server.userResponse"
+                }
+            }
+        },
+        "server.propertyResponse": {
+            "type": "object",
+            "required": [
+                "Address",
+                "City",
+                "ID",
+                "NumOfBathrooms",
+                "NumOfBedrooms",
+                "Owner",
+                "State",
+                "ZipCode"
+            ],
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "City": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "NumOfBathrooms": {
+                    "type": "integer"
+                },
+                "NumOfBedrooms": {
+                    "type": "integer"
+                },
+                "Owner": {
+                    "type": "integer"
+                },
+                "State": {
+                    "type": "string"
+                },
+                "ZipCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.requestAgentRepresentationRequest": {
+            "type": "object",
+            "required": [
+                "client_username",
+                "end_date",
+                "start_date"
+            ],
+            "properties": {
+                "client_username": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
                 }
             }
         },

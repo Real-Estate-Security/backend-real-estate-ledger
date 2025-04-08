@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createListing = `-- name: CreateListing :one
@@ -72,6 +73,69 @@ func (q *Queries) GetListingByID(ctx context.Context, id int64) (Listings, error
 		&i.AcceptedBidID,
 	)
 	return i, err
+}
+
+const getListings = `-- name: GetListings :many
+SELECT listings.price, listings.listing_status, listings.listing_date, 
+listings.description, users.first_name, users.last_name, users.email, 
+properties.address, properties.city, properties.state, properties.zipcode, 
+properties.bedrooms, properties.bathrooms 
+from listings
+JOIN properties on listings.property_id = properties.id
+JOIN users on listings.agent_id = users.id
+`
+
+type GetListingsRow struct {
+	Price         string         `json:"price"`
+	ListingStatus string         `json:"listing_status"`
+	ListingDate   time.Time      `json:"listing_date"`
+	Description   sql.NullString `json:"description"`
+	FirstName     string         `json:"first_name"`
+	LastName      string         `json:"last_name"`
+	Email         string         `json:"email"`
+	Address       string         `json:"address"`
+	City          string         `json:"city"`
+	State         string         `json:"state"`
+	Zipcode       int32          `json:"zipcode"`
+	Bedrooms      int32          `json:"bedrooms"`
+	Bathrooms     int32          `json:"bathrooms"`
+}
+
+func (q *Queries) GetListings(ctx context.Context) ([]GetListingsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getListings)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetListingsRow{}
+	for rows.Next() {
+		var i GetListingsRow
+		if err := rows.Scan(
+			&i.Price,
+			&i.ListingStatus,
+			&i.ListingDate,
+			&i.Description,
+			&i.FirstName,
+			&i.LastName,
+			&i.Email,
+			&i.Address,
+			&i.City,
+			&i.State,
+			&i.Zipcode,
+			&i.Bedrooms,
+			&i.Bathrooms,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listListings = `-- name: ListListings :many

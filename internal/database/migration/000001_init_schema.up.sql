@@ -11,6 +11,12 @@ CREATE TYPE "BidStatus" AS ENUM (
   'countered'
 );
 
+CREATE TYPE "AgreementStatus" AS ENUM (
+  'pending',
+  'accepted',
+  'rejected'
+);
+
 CREATE TABLE "users" (
   "id" bigserial PRIMARY KEY,
   "username" varchar UNIQUE NOT NULL,
@@ -62,7 +68,10 @@ CREATE TABLE "representations" (
   "agent_id" bigserial NOT NULL,
   "start_date" timestamptz NOT NULL DEFAULT (now()),
   "end_date" timestamptz,
-  "is_active" boolean NOT NULL DEFAULT true
+  "status" "AgreementStatus" NOT NULL DEFAULT 'pending',
+  "requested_at" timestamptz NOT NULL DEFAULT (now()),
+  "signed_at" timestamptz,
+  "is_active" boolean NOT NULL DEFAULT false
 );
 
 COMMENT ON COLUMN "representations"."user_id" IS 'Buyer being represented';
@@ -94,3 +103,11 @@ ALTER TABLE "bids" ADD FOREIGN KEY ("previous_bid_id") REFERENCES "bids" ("id");
 ALTER TABLE "representations" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "representations" ADD FOREIGN KEY ("agent_id") REFERENCES "users" ("id");
+INSERT INTO public.users
+(username, hashed_password, first_name, last_name, email, dob, created_at, "role")
+VALUES('test1', 'test123', 'John', 'Robert', 'john@gmail.com', 'Mar 1 1967', now(), 'user'::"UserRole");
+
+
+INSERT INTO public.properties
+(address, city, state, zipcode, bedrooms, bathrooms)
+VALUES('123 Main Street', 'Austin', 'TX', 78681, 5, 3);

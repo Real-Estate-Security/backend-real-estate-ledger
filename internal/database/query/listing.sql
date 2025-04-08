@@ -40,3 +40,12 @@ SET
     accepted_bid_id = $1
 WHERE id = $2
 RETURNING *;
+
+-- name: GetListings :many
+SELECT listings.price, listings.listing_status, listings.listing_date, 
+listings.description, users.first_name, users.last_name, users.email, 
+properties.address, properties.city, properties.state, properties.zipcode, 
+properties.bedrooms, properties.bathrooms 
+from listings
+JOIN properties on listings.property_id = properties.id
+JOIN users on listings.agent_id = users.id;

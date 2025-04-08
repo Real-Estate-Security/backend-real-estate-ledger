@@ -14,11 +14,14 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/golang-migrate/migrate/v4/source/github"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
+	"github.com/hyperledger/fabric-gateway/pkg/hash"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	"backend_real_estate/internal/database"
+	"backend_real_estate/internal/gateway"
 	"backend_real_estate/internal/server"
 	"backend_real_estate/util"
 )
@@ -76,6 +79,30 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
+	// connect to gateway
+
+	clientConnection := gateway.NewGrpcConnection()
+	defer clientConnection.Close()
+
+	id := gateway.NewIdentity()
+	sign := gateway.NewSign()
+
+	gw, err := client.Connect(
+		id,
+		client.WithSign(sign),
+		client.WithHash(hash.SHA256),
+		client.WithClientConnection(clientConnection),
+		// Default timeouts for different gRPC calls
+		client.WithEvaluateTimeout(5*time.Second),
+		client.WithEndorseTimeout(15*time.Second),
+		client.WithSubmitTimeout(5*time.Second),
+		client.WithCommitStatusTimeout(1*time.Minute),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer gw.Close()
+
 	// connect to the database
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbDatabase, config.DbSchema)
@@ -88,7 +115,7 @@ func main() {
 
 	runDBMigrations(config.MigrationUrl, connStr)
 
-	httpServer, err := server.NewHTTPServer(config, database.NewService(dbConn))
+	httpServer, err := server.NewHTTPServer(config, database.NewService(dbConn), gw)
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create server")
