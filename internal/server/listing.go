@@ -5,13 +5,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"time"
 )
+
+
 
 type listingDisplayResponse struct {
 	Price         string         `json:"price"`
 	ListingStatus string         `json:"listing_status"`
 	ListingDate   time.Time      `json:"listing_date"`
-	Description   sql.NullString `json:"description"`
+	Description   string 		 `json:"description"`
 	FirstName     string         `json:"first_name"`
 	LastName      string         `json:"last_name"`
 	Email         string         `json:"email"`
@@ -32,7 +35,7 @@ func getListingDisplayResponse(display []database.GetListingsRow) []listingDispl
 			Price:	   		display[i].Price,
 			ListingStatus:  display[i].ListingStatus,
 			ListingDate:    display[i].ListingDate,
-			Description:    display[i].Description,
+			Description:    display[i].Description.String,
 			FirstName: 		display[i].FirstName,
 			LastName: 		display[i].LastName,
 			Email:			display[i].Email,
@@ -41,7 +44,6 @@ func getListingDisplayResponse(display []database.GetListingsRow) []listingDispl
 			State:     		display[i].State,
 			Zipcode:   		display[i].Zipcode,
 			Bedrooms:  		display[i].Bedrooms,
-			Bathrooms: 		display[i].Bathrooms,
 			Bathrooms: 		display[i].Bathrooms,
 		}
 
