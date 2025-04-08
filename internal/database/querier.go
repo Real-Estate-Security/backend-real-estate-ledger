@@ -19,6 +19,7 @@ type Querier interface {
 	GetAgentByID(ctx context.Context) (GetAgentByIDRow, error)
 	GetListingByID(ctx context.Context, id int64) (Listings, error)
 	GetListingByPropertyID(ctx context.Context, propertyID int64) (Listings, error)
+	GetListings(ctx context.Context) ([]GetListingsRow, error)
 	GetPropertyByID(ctx context.Context, id int64) (Properties, error)
 	GetRepresentationByID(ctx context.Context, id int64) (GetRepresentationByIDRow, error)
 	GetUserByEmail(ctx context.Context, email string) (Users, error)
