@@ -36,6 +36,7 @@ type Querier interface {
 	UpdatePropertyOwner(ctx context.Context, arg UpdatePropertyOwnerParams) (Properties, error)
 	UpdateRepresentation(ctx context.Context, arg UpdateRepresentationParams) (Representations, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, error)
+	GetListings(ctx context.Context) ([]GetListingsRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

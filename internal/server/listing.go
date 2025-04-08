@@ -16,7 +16,7 @@ type listingDisplayResponse struct {
 	Bathrooms int32  `json:"Bathrooms" binding:required`
 }
 
-func getListingDisplayResponse(display []database.Properties) []listingDisplayResponse {
+func getListingDisplayResponse(display []database.GetListingsRow) []listingDisplayResponse {
 
 	var listings []listingDisplayResponse
 
@@ -49,15 +49,14 @@ func getListingDisplayResponse(display []database.Properties) []listingDisplayRe
 // @Failure 500 {object} string
 // @Router /listing/getListings [get]
 func (s *Server) GetListingDisplayHandler(c *gin.Context) {
-
-	listings, err := s.dbService.ListProperties(c)
+	listings, err := s.dbService.GetListings(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	resp := getListingDisplayResponse(listings)
+	//resp := getListingDisplayResponse(listings)
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, listings)
 
 }
