@@ -39,6 +39,46 @@ definitions:
       status:
         type: string
     type: object
+  server.bidResponse:
+    properties:
+      AgentID:
+        type: integer
+      Amount:
+        type: string
+      BuyerID:
+        type: integer
+      ID:
+        type: integer
+      ListingID:
+        type: integer
+      PreviousBidID:
+        type: integer
+    required:
+    - AgentID
+    - Amount
+    - BuyerID
+    - ID
+    - ListingID
+    - PreviousBidID
+    type: object
+  server.createBidRequest:
+    properties:
+      AgentID:
+        type: integer
+      Amount:
+        type: string
+      BuyerID:
+        type: integer
+      ListingID:
+        type: integer
+      PreviousBidID:
+        type: integer
+    required:
+    - AgentID
+    - Amount
+    - BuyerID
+    - ListingID
+    type: object
   server.createUserRequest:
     properties:
       dob:
@@ -86,6 +126,48 @@ definitions:
         type: string
     required:
     - PropertyID
+    - Username
+    type: object
+  server.listBidResponse:
+    properties:
+      AgentID:
+        type: integer
+      Amount:
+        type: string
+      BuyerID:
+        type: integer
+      ID:
+        type: integer
+      ListingID:
+        type: integer
+      PreviousBidID:
+        type: integer
+      Status:
+        type: string
+    required:
+    - AgentID
+    - Amount
+    - BuyerID
+    - ID
+    - ListingID
+    - PreviousBidID
+    - Status
+    type: object
+  server.listBidsOnListingRequest:
+    properties:
+      ListingID:
+        type: integer
+    required:
+    - ListingID
+    type: object
+  server.listBidsRequest:
+    properties:
+      BuyerID:
+        type: integer
+      Username:
+        type: string
+    required:
+    - BuyerID
     - Username
     type: object
   server.listingResponse:
@@ -161,6 +243,13 @@ definitions:
     - Owner
     - State
     - ZipCode
+    type: object
+  server.rejectBidRequest:
+    properties:
+      ID:
+        type: integer
+    required:
+    - ID
     type: object
   server.requestAgentRepresentationRequest:
     properties:
@@ -370,6 +459,160 @@ paths:
       summary: Request representation
       tags:
       - agent
+  /bidding/acceptBid:
+    put:
+      consumes:
+      - application/json
+      description: accept a bid
+      parameters:
+      - description: accept a bid
+        in: body
+        name: rejectBidRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.rejectBidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: accept a bid
+      tags:
+      - bidding
+  /bidding/createBid:
+    post:
+      consumes:
+      - application/json
+      description: create a bid
+      parameters:
+      - description: create a bid
+        in: body
+        name: createBidRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.createBidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.bidResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: create a bid
+      tags:
+      - bidding
+  /bidding/listBids:
+    post:
+      consumes:
+      - application/json
+      description: listing all bids belonging to a given buyer
+      parameters:
+      - description: listing all bids belonging to a given buyer
+        in: body
+        name: buyerID
+        required: true
+        schema:
+          $ref: '#/definitions/server.listBidsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: list of bids
+          schema:
+            items:
+              $ref: '#/definitions/server.listBidResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: given user, list all bid with them as buyer
+      tags:
+      - bidding
+  /bidding/listBidsOnListing:
+    post:
+      consumes:
+      - application/json
+      description: listing all bids with a given listing
+      parameters:
+      - description: listing all bids that have a specific listing
+        in: body
+        name: listingID
+        required: true
+        schema:
+          $ref: '#/definitions/server.listBidsOnListingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: list of bids
+          schema:
+            items:
+              $ref: '#/definitions/server.listBidResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: given listing, list all bids with that as the listing
+      tags:
+      - bidding
+  /bidding/rejectBid:
+    put:
+      consumes:
+      - application/json
+      description: reject a bid
+      parameters:
+      - description: reject a bid
+        in: body
+        name: rejectBidRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.rejectBidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: reject a bid
+      tags:
+      - bidding
   /health:
     get:
       description: Returns the health status of the server
