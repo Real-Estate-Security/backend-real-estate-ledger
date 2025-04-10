@@ -52,15 +52,14 @@ func getListingDisplayResponse(display []database.GetListingsRow) []listingDispl
 	return listings
 }
 
-// getListingDisplayHandler handles the reponse for get property information
+// getListingDisplayHandler handles the response for getting property information
 //
-// @Summary display properties
-// @Description get listing by property id
+// @Summary Display properties
+// @Description Get listings with optional pagination
 // @Tags listing
 // @Accept json
 // @Produce json
-// @Param limit query int false "Limit (default: 10)"
-// @Success 200 {array} listingDisplayResponse "array of listings to display"
+// @Success 200 {array} listingDisplayResponse
 // @Failure 400 {object} string
 // @Failure 500 {object} string
 // @Router /listing [get]
@@ -71,6 +70,11 @@ func (s *Server) GetListingDisplayHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, listings)
+	returnedListings := getListingDisplayResponse(listings)
+	if len(returnedListings) == 0 {
+		returnedListings = []listingDisplayResponse{}
+	}
+
+	c.JSON(http.StatusOK, returnedListings)
 
 }
