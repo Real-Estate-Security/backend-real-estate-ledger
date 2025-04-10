@@ -10,6 +10,17 @@ import (
 	"database/sql"
 )
 
+const acceptBid = `-- name: AcceptBid :exec
+UPDATE bids
+SET status = 'accepted'
+WHERE id = $1
+`
+
+func (q *Queries) AcceptBid(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, acceptBid, id)
+	return err
+}
+
 const createBid = `-- name: CreateBid :one
 INSERT INTO bids(
     id, 
@@ -61,4 +72,89 @@ func (q *Queries) CreateBid(ctx context.Context, arg CreateBidParams) (Bids, err
 		&i.PreviousBidID,
 	)
 	return i, err
+}
+
+const listBids = `-- name: ListBids :many
+SELECT id, listing_id, buyer_id, agent_id, amount, status, created_at, previous_bid_id FROM bids
+WHERE buyer_id=$1
+`
+
+func (q *Queries) ListBids(ctx context.Context, buyerID int64) ([]Bids, error) {
+	rows, err := q.db.QueryContext(ctx, listBids, buyerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Bids{}
+	for rows.Next() {
+		var i Bids
+		if err := rows.Scan(
+			&i.ID,
+			&i.ListingID,
+			&i.BuyerID,
+			&i.AgentID,
+			&i.Amount,
+			&i.Status,
+			&i.CreatedAt,
+			&i.PreviousBidID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listBidsOnListing = `-- name: ListBidsOnListing :many
+SELECT id, listing_id, buyer_id, agent_id, amount, status, created_at, previous_bid_id FROM bids
+WHERE listing_id=$1
+`
+
+func (q *Queries) ListBidsOnListing(ctx context.Context, listingID int64) ([]Bids, error) {
+	rows, err := q.db.QueryContext(ctx, listBidsOnListing, listingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Bids{}
+	for rows.Next() {
+		var i Bids
+		if err := rows.Scan(
+			&i.ID,
+			&i.ListingID,
+			&i.BuyerID,
+			&i.AgentID,
+			&i.Amount,
+			&i.Status,
+			&i.CreatedAt,
+			&i.PreviousBidID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const rejectBid = `-- name: RejectBid :exec
+UPDATE bids
+SET status = 'rejected'
+WHERE id=$1
+`
+
+func (q *Queries) RejectBid(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, rejectBid, id)
+	return err
 }

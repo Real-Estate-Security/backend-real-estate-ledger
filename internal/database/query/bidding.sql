@@ -19,3 +19,21 @@ INSERT INTO bids(
     $5
 )
 RETURNING *;
+
+-- name: ListBids :many
+SELECT * FROM bids
+WHERE buyer_id=$1;
+
+-- name: ListBidsOnListing :many
+SELECT * FROM bids
+WHERE listing_id=$1;
+
+-- name: RejectBid :exec
+UPDATE bids
+SET status = 'rejected'
+WHERE id=$1;
+
+-- name: AcceptBid :exec
+UPDATE bids
+SET status = 'accepted'
+WHERE id = $1;
