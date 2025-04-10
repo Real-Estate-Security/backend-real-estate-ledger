@@ -9,7 +9,6 @@ import (
 )
 
 
-
 type listingDisplayResponse struct {
 	Price         string         `json:"price"`
 	ListingStatus string         `json:"listing_status"`
@@ -64,7 +63,7 @@ func getListingDisplayResponse(display []database.GetListingsRow) []listingDispl
 // @Success 200 {object} listingDisplayResponse
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /listing/getListings [get]
+// @Router /listing [get]
 func (s *Server) GetListingDisplayHandler(c *gin.Context) {
 	listings, err := s.dbService.GetListings(c)
 	if err != nil {
