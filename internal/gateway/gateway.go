@@ -13,7 +13,7 @@ import (
 // Move to ENV file later
 const (
 	mspID        = "org1MSP"
-	cryptoPath   = "/app/ledger_keys"
+	cryptoPath   = "ledger_keys"
 	certPath     = cryptoPath + "/msp/signcerts"
 	keyPath      = cryptoPath + "/msp/keystore"
 	peerEndpoint = "org1peer-api.127-0-0-1.nip.io:8080"

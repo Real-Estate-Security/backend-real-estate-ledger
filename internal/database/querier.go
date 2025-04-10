@@ -18,14 +18,14 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id int64) error
 	GetListingByPropertyID(ctx context.Context, propertyID int64) (Listings, error)
 	GetPropertyByID(ctx context.Context, id int64) (Properties, error)
-	GetRepresentationByID(ctx context.Context, id int64) (Representations, error)
+	GetRepresentationByID(ctx context.Context, id int64) (GetRepresentationByIDRow, error)
 	GetUserByEmail(ctx context.Context, email string) (Users, error)
 	GetUserByID(ctx context.Context, id int64) (Users, error)
 	GetUserByUsername(ctx context.Context, username string) (Users, error)
 	ListBids(ctx context.Context, buyerID int64) ([]Bids, error)
 	ListBidsOnListing(ctx context.Context, listingID int64) ([]Bids, error)
-	ListRepresentationsByAgentID(ctx context.Context, arg ListRepresentationsByAgentIDParams) ([]Representations, error)
-	ListRepresentationsByUserID(ctx context.Context, arg ListRepresentationsByUserIDParams) ([]Representations, error)
+	ListRepresentationsByAgentID(ctx context.Context, arg ListRepresentationsByAgentIDParams) ([]ListRepresentationsByAgentIDRow, error)
+	ListRepresentationsByUserID(ctx context.Context, arg ListRepresentationsByUserIDParams) ([]ListRepresentationsByUserIDRow, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error)
 	RejectBid(ctx context.Context, id int64) error
 	RejectRepresentation(ctx context.Context, id int64) (Representations, error)

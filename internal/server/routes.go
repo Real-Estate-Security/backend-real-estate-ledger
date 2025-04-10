@@ -78,7 +78,7 @@ func (server *Server) RegisterRoutes() {
 	authRoutes.POST("/agent/decline-representation/:id", server.DeclineRepresentationHandler)
 
 	// agent and user routes protected
-	authRoutes.GET("/agent/representations", server.ListRepresentationsHandler)
+	authRoutes.GET("/agent/representation", server.ListRepresentationsHandler)
 
 	server.router = router
 }
