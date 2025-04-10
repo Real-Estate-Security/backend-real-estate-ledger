@@ -60,7 +60,7 @@ func getListingDisplayResponse(display []database.GetListingsRow) []listingDispl
 // @Accept json
 // @Produce json
 // @Param limit query int false "Limit (default: 10)"
-// @Success 200 {object} listingDisplayResponse
+// @Success 200 {array} listingDisplayResponse "array of listings to display"
 // @Failure 400 {object} string
 // @Failure 500 {object} string
 // @Router /listing [get]
