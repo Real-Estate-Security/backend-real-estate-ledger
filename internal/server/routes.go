@@ -52,7 +52,7 @@ func (server *Server) RegisterRoutes() {
 
 	//ledger routes
 	router.GET("/properties", server.GetAllProperties)
-	router.POST("/properties", server.RegisterProperty)
+	router.POST("/properties-ledger", server.RegisterProperty)
 	router.POST("/properties/list/:id", server.ListProperty)
 	router.POST("/properties/bid/:id", server.PlaceBid)
 	router.DELETE("/properties/bid/:propertyID/:bidID", server.RejectBid)

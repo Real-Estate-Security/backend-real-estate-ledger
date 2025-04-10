@@ -1,4 +1,44 @@
 definitions:
+  server.NullableTime:
+    properties:
+      time:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  server.RepresentationData:
+    properties:
+      agent_first_name:
+        type: string
+      agent_id:
+        type: integer
+      agent_last_name:
+        type: string
+      agent_username:
+        type: string
+      client_first_name:
+        type: string
+      client_id:
+        type: integer
+      client_last_name:
+        type: string
+      client_username:
+        type: string
+      end_date:
+        $ref: '#/definitions/server.NullableTime'
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      requested_at:
+        type: string
+      signed_at:
+        $ref: '#/definitions/server.NullableTime'
+      start_date:
+        type: string
+      status:
+        type: string
+    type: object
   server.createListingRequest:
     properties:
       Address:
@@ -90,6 +130,35 @@ definitions:
     required:
     - PropertyID
     - Username
+    type: object
+  server.listingDisplayResponse:
+    properties:
+      address:
+        type: string
+      bathrooms:
+        type: integer
+      bedrooms:
+        type: integer
+      city:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      listing_date:
+        type: string
+      listing_status:
+        type: string
+      price:
+        type: string
+      state:
+        type: string
+      zipcode:
+        type: integer
     type: object
   server.listingResponse:
     properties:
@@ -430,8 +499,35 @@ paths:
             type: string
       summary: get listing by property id
       tags:
-<<<<<<< HEAD
-      - health
+      - listing
+  /listing/getListings:
+    get:
+      consumes:
+      - application/json
+      description: get listing by property id
+      parameters:
+      - description: 'Limit (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.listingDisplayResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: display properties
+      tags:
+      - listing
   /properties:
     post:
       consumes:
@@ -444,8 +540,25 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/server.createListingRequest'
-=======
-      - listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: given listing, create property if doesn't exist and then create listing
+        for that property
+      tags:
+      - properties
   /property/getPropertyByID:
     post:
       consumes:
@@ -458,18 +571,13 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/server.getPropertyByIDRequest'
->>>>>>> origin/FEATURE/listing
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-<<<<<<< HEAD
-            type: string
-=======
             $ref: '#/definitions/server.propertyResponse'
->>>>>>> origin/FEATURE/listing
         "400":
           description: Bad Request
           schema:
@@ -478,16 +586,9 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-<<<<<<< HEAD
-      summary: given listing, create property if doesn't exist and then create listing
-        for that property
-      tags:
-      - properties
-=======
       summary: get property by id
       tags:
       - property
->>>>>>> origin/FEATURE/listing
   /user/login:
     post:
       consumes:

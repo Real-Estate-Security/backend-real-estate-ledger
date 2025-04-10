@@ -349,9 +349,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/property/getPropertyByID": {
-            "post": {
-                "description": "get property by id",
+        "/listing/getListings": {
+            "get": {
+                "description": "get listing by property id",
                 "consumes": [
                     "application/json"
                 ],
@@ -359,25 +359,22 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "property"
+                    "listing"
                 ],
-                "summary": "get property by id",
+                "summary": "display properties",
                 "parameters": [
                     {
-                        "description": "get property by id",
-                        "name": "getPropertyByIDRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/server.getPropertyByIDRequest"
-                        }
+                        "type": "integer",
+                        "description": "Limit (default: 10)",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.propertyResponse"
+                            "$ref": "#/definitions/server.listingDisplayResponse"
                         }
                     },
                     "400": {
@@ -424,6 +421,52 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/property/getPropertyByID": {
+            "post": {
+                "description": "get property by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "property"
+                ],
+                "summary": "get property by id",
+                "parameters": [
+                    {
+                        "description": "get property by id",
+                        "name": "getPropertyByIDRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.getPropertyByIDRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.propertyResponse"
                         }
                     },
                     "400": {
@@ -575,6 +618,67 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "server.NullableTime": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.RepresentationData": {
+            "type": "object",
+            "properties": {
+                "agent_first_name": {
+                    "type": "string"
+                },
+                "agent_id": {
+                    "type": "integer"
+                },
+                "agent_last_name": {
+                    "type": "string"
+                },
+                "agent_username": {
+                    "type": "string"
+                },
+                "client_first_name": {
+                    "type": "string"
+                },
+                "client_id": {
+                    "type": "integer"
+                },
+                "client_last_name": {
+                    "type": "string"
+                },
+                "client_username": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "$ref": "#/definitions/server.NullableTime"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "requested_at": {
+                    "type": "string"
+                },
+                "signed_at": {
+                    "$ref": "#/definitions/server.NullableTime"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "server.createListingRequest": {
             "type": "object",
             "required": [
@@ -702,6 +806,50 @@ const docTemplate = `{
                 },
                 "Username": {
                     "type": "string"
+                }
+            }
+        },
+        "server.listingDisplayResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "bathrooms": {
+                    "type": "integer"
+                },
+                "bedrooms": {
+                    "type": "integer"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "listing_date": {
+                    "type": "string"
+                },
+                "listing_status": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "zipcode": {
+                    "type": "integer"
                 }
             }
         },
