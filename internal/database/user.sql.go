@@ -76,6 +76,24 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
+const getAgentByID = `-- name: GetAgentByID :one
+SELECT first_name, last_name, email FROM users
+WHERE UserRole = agent
+`
+
+type GetAgentByIDRow struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
+func (q *Queries) GetAgentByID(ctx context.Context) (GetAgentByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getAgentByID)
+	var i GetAgentByIDRow
+	err := row.Scan(&i.FirstName, &i.LastName, &i.Email)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, username, hashed_password, first_name, last_name, email, dob, created_at, role FROM users
 WHERE email = $1
@@ -140,6 +158,18 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (Users
 		&i.Role,
 	)
 	return i, err
+}
+
+const getUserIDByEmail = `-- name: GetUserIDByEmail :one
+SELECT id FROM users
+WHERE email = $1
+`
+
+func (q *Queries) GetUserIDByEmail(ctx context.Context, email string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getUserIDByEmail, email)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const listUsers = `-- name: ListUsers :many
