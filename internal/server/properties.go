@@ -8,6 +8,7 @@ import(
 	"errors"
 	"fmt"
 
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -111,30 +112,30 @@ func (s *Server) CreateOrUsePropertyAndThenCreateListing(ctx context.Context, re
 
 
 type getPropertyByIDRequest struct {
-	PropertyID  int64    `json:"PropertyID" binding:"required"`
-	Username  string    `json:"Username" binding:"required,alphanum"`
+	PropertyID int64  `json:"PropertyID" binding:"required"`
+	Username   string `json:"Username" binding:"required,alphanum"`
 }
 
 type propertyResponse struct {
-	ID  int64    `json:"ID" binding:"required"`
-	Owner int64    `json:"Owner" binding:"required"`
-	Address  string    `json:"Address" binding:"required"`
-	City     string    `json:"City" binding:"required"`
-	State     string    `json:"State" binding:"required"`
-	ZipCode     int    `json:"ZipCode" binding:"required"`
-	NumOfBedrooms     int    `json:"NumOfBedrooms" binding:"required"`
-	NumOfBathrooms     int    `json:"NumOfBathrooms" binding:"required"`
+	ID             int64  `json:"ID" binding:"required"`
+	Owner          int64  `json:"Owner" binding:"required"`
+	Address        string `json:"Address" binding:"required"`
+	City           string `json:"City" binding:"required"`
+	State          string `json:"State" binding:"required"`
+	ZipCode        int    `json:"ZipCode" binding:"required"`
+	NumOfBedrooms  int    `json:"NumOfBedrooms" binding:"required"`
+	NumOfBathrooms int    `json:"NumOfBathrooms" binding:"required"`
 }
 
 func getPropertyResponse(currentProperty db.Properties) propertyResponse {
 	return propertyResponse{
-		ID:  currentProperty.ID,
-		Owner: currentProperty.Owner,
-		Address: currentProperty.Address,
-		City: currentProperty.City,
-		State: currentProperty.State,
-		ZipCode: int(currentProperty.Zipcode),
-		NumOfBedrooms: int(currentProperty.Bedrooms),
+		ID:             currentProperty.ID,
+		Owner:          currentProperty.Owner,
+		Address:        currentProperty.Address,
+		City:           currentProperty.City,
+		State:          currentProperty.State,
+		ZipCode:        int(currentProperty.Zipcode),
+		NumOfBedrooms:  int(currentProperty.Bedrooms),
 		NumOfBathrooms: int(currentProperty.Bathrooms),
 	}
 }

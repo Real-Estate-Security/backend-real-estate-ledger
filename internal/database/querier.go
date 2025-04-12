@@ -9,7 +9,9 @@ import (
 )
 
 type Querier interface {
+	AcceptBid(ctx context.Context, id int64) error
 	AcceptRepresentation(ctx context.Context, arg AcceptRepresentationParams) (Representations, error)
+	CreateBid(ctx context.Context, arg CreateBidParams) (Bids, error)
 	CreateListing(ctx context.Context, arg CreateListingParams) (Listings, error)
 	CreateProperty(ctx context.Context, arg CreatePropertyParams) (Properties, error)
 	CreateRepresentation(ctx context.Context, arg CreateRepresentationParams) (Representations, error)
@@ -27,11 +29,14 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id int64) (Users, error)
 	GetUserByUsername(ctx context.Context, username string) (Users, error)
 	GetUserIDByEmail(ctx context.Context, email string) (int64, error)
+	ListBids(ctx context.Context, buyerID int64) ([]Bids, error)
+	ListBidsOnListing(ctx context.Context, listingID int64) ([]Bids, error)
 	ListListings(ctx context.Context) ([]Listings, error)
 	ListProperties(ctx context.Context) ([]Properties, error)
 	ListRepresentationsByAgentID(ctx context.Context, arg ListRepresentationsByAgentIDParams) ([]ListRepresentationsByAgentIDRow, error)
 	ListRepresentationsByUserID(ctx context.Context, arg ListRepresentationsByUserIDParams) ([]ListRepresentationsByUserIDRow, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error)
+	RejectBid(ctx context.Context, id int64) error
 	RejectRepresentation(ctx context.Context, id int64) (Representations, error)
 	UpdateListingAcceptedBidID(ctx context.Context, arg UpdateListingAcceptedBidIDParams) (Listings, error)
 	UpdateListingPrice(ctx context.Context, arg UpdateListingPriceParams) (Listings, error)

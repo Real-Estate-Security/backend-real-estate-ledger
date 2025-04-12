@@ -112,7 +112,7 @@ git clone git@github.com:Real-Estate-Security/backend-real-estate-ledger.git
   ```sh
   docker-compose up
   ```
-- The application should now be running at `localhost:8080`
+- The application should now be running at `localhost:8000`
 
 ## Development Workflow
 

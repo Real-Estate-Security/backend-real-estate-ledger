@@ -49,7 +49,7 @@
      ```
 
 5. Access the application
-   - The application should now be running at `localhost:8080`.
+   - The application should now be running at `localhost:8000`.
 
 ### Additional Information: Make commands
 
