@@ -548,6 +548,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: given user, list all bid with them as buyer
       tags:
       - bidding

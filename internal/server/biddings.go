@@ -2,6 +2,7 @@ package server
 
 import (
 	"backend_real_estate/internal/database"
+	"backend_real_estate/internal/token"
 	"database/sql"
 	"net/http"
 
@@ -116,6 +117,7 @@ func (s *Server) createBidHandler(c *gin.Context) {
 // @Failure 400 {object} string
 // @Failure 500 {object} string
 // @Router /bidding/listBids [post]
+// @Security BearerAuth
 func (s *Server) listBidsHandler(c *gin.Context) {
 	var req listBidsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -123,11 +125,23 @@ func (s *Server) listBidsHandler(c *gin.Context) {
 		return
 	}
 
+	// Check if the client exists
+	client, err := s.dbService.GetUserByUsername(c, req.Username)
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+
+	// Get the agent's username from the authorization payload
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if authPayload== nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization payload"})
+		return
+	}
+
 	var bidList []database.Bids
-
-	// Fetch representations based on the user's role
-
-	bidList, err := s.dbService.ListBids(c, req.BuyerID)
+	bidList, err = s.dbService.ListBids(c, client.ID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))

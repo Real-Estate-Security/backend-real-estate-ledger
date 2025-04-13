@@ -354,6 +354,11 @@ const docTemplate = `{
         },
         "/bidding/listBids": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "listing all bids belonging to a given buyer",
                 "consumes": [
                     "application/json"
