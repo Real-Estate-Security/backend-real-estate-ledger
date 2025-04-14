@@ -36,7 +36,7 @@ func (server *Server) RegisterRoutes() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // Add your frontend URL
+		AllowOrigins:     []string{"http://localhost:4173"}, // Add your frontend URL
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true, // Enable cookies/auth
@@ -53,7 +53,7 @@ func (server *Server) RegisterRoutes() {
 
 	//ledger routes
 	router.GET("/properties", server.GetAllProperties)
-	router.POST("/properties", server.RegisterProperty)
+	router.POST("/properties-ledger", server.RegisterProperty)
 	router.POST("/properties/list/:id", server.ListProperty)
 	router.POST("/properties/bid/:id", server.PlaceBid)
 	router.DELETE("/properties/bid/:propertyID/:bidID", server.RejectBid)
@@ -61,6 +61,7 @@ func (server *Server) RegisterRoutes() {
 	// user routes unprotected
 	router.POST("/user/signup", server.CreateUserHandler)
 	router.POST("/user/login", server.LoginUserHandler)
+	router.GET("/listing", server.GetListingDisplayHandler) //CHANGE MIGHT BE NEEDED
 
 	router.POST("/property/getPropertyByID", server.getPropertyByIDHandler)
 	router.POST("/listing/getListingByPropertyID", server.getListingByPropertyIDHandler)
@@ -74,6 +75,8 @@ func (server *Server) RegisterRoutes() {
 	
 	authRoutes.GET("/user/me", server.UserMeHandler)
 
+	// properties/listings routes 
+	router.POST("/properties", server.CreatePropertyAndListingHandler)
 	// agent routes protected
 	authRoutes.POST("/agent/request-representation", server.RequestRepresentationHandler)
 	authRoutes.POST("/agent/accept-representation/:id", server.AcceptRepresentationHandler)

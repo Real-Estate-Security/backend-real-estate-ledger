@@ -26,8 +26,16 @@ WHERE username = $1;
 SELECT * FROM users
 WHERE id = $1;
 
+-- name: GetAgentByID :one
+SELECT first_name, last_name, email FROM users
+WHERE UserRole = agent;
+
 -- name: GetUserByEmail :one
 SELECT * FROM users
+WHERE email = $1;
+
+-- name: GetUserIDByEmail :one
+SELECT id FROM users
 WHERE email = $1;
 
 

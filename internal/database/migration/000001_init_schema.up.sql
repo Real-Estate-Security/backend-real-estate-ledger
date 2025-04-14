@@ -48,7 +48,7 @@ CREATE TABLE "listings" (
   "listing_status" varchar NOT NULL DEFAULT 'active',
   "listing_date" timestamptz NOT NULL DEFAULT (now()),
   "description" text,
-  "accepted_bid_id" bigserial UNIQUE
+  "accepted_bid_id" bigint DEFAULT NULL
 );
 
 CREATE TABLE "bids" (
@@ -103,11 +103,3 @@ ALTER TABLE "bids" ADD FOREIGN KEY ("previous_bid_id") REFERENCES "bids" ("id");
 ALTER TABLE "representations" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "representations" ADD FOREIGN KEY ("agent_id") REFERENCES "users" ("id");
-INSERT INTO public.users
-(username, hashed_password, first_name, last_name, email, dob, created_at, "role")
-VALUES('test1', 'test123', 'John', 'Robert', 'john@gmail.com', 'Mar 1 1967', now(), 'user'::"UserRole");
-
-
-INSERT INTO public.properties
-(address, city, state, zipcode, bedrooms, bathrooms)
-VALUES('123 Main Street', 'Austin', 'TX', 78681, 5, 3);

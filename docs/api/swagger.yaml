@@ -79,6 +79,49 @@ definitions:
     - BuyerID
     - ListingID
     type: object
+  server.createListingRequest:
+    properties:
+      Address:
+        type: string
+      AgentEmail:
+        type: string
+      AgentFirstName:
+        type: string
+      AgentLastName:
+        type: string
+      Bathrooms:
+        type: integer
+      Bedrooms:
+        type: integer
+      City:
+        type: string
+      Description:
+        type: string
+      OwnerEmail:
+        type: string
+      OwnerFirstName:
+        type: string
+      OwnerLastName:
+        type: string
+      Price:
+        type: string
+      State:
+        type: string
+      Zipcode:
+        type: integer
+    required:
+    - Address
+    - AgentEmail
+    - Bathrooms
+    - Bedrooms
+    - City
+    - OwnerEmail
+    - OwnerFirstName
+    - OwnerLastName
+    - Price
+    - State
+    - Zipcode
+    type: object
   server.createUserRequest:
     properties:
       dob:
@@ -166,6 +209,35 @@ definitions:
         type: string
     required:
     - Username
+    type: object
+  server.listingDisplayResponse:
+    properties:
+      address:
+        type: string
+      bathrooms:
+        type: integer
+      bedrooms:
+        type: integer
+      city:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      listing_date:
+        type: string
+      listing_status:
+        type: string
+      price:
+        type: string
+      state:
+        type: string
+      zipcode:
+        type: integer
     type: object
   server.listingResponse:
     properties:
@@ -680,6 +752,31 @@ paths:
       summary: HelloWorld example
       tags:
       - example
+  /listing:
+    get:
+      consumes:
+      - application/json
+      description: Get listings with optional pagination
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/server.listingDisplayResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Display properties
+      tags:
+      - listing
   /listing/getListingByPropertyID:
     post:
       consumes:
@@ -710,6 +807,37 @@ paths:
       summary: get listing by property id
       tags:
       - listing
+  /properties:
+    post:
+      consumes:
+      - application/json
+      description: creating a listing for a property
+      parameters:
+      - description: creating a listing for a property
+        in: body
+        name: createListingRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.createListingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: given listing, create property if doesn't exist and then create listing
+        for that property
+      tags:
+      - properties
   /property/getPropertyByID:
     post:
       consumes:
