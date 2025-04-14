@@ -23,12 +23,13 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id int64) (Users, error)
 	GetUserByUsername(ctx context.Context, username string) (Users, error)
 	ListBids(ctx context.Context, buyerID int64) ([]Bids, error)
-	ListBidsOnListing(ctx context.Context, listingID int64) ([]Bids, error)
+	ListLatestBidOnListing(ctx context.Context, listingID int64) (Bids, error)
 	ListRepresentationsByAgentID(ctx context.Context, arg ListRepresentationsByAgentIDParams) ([]ListRepresentationsByAgentIDRow, error)
 	ListRepresentationsByUserID(ctx context.Context, arg ListRepresentationsByUserIDParams) ([]ListRepresentationsByUserIDRow, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error)
 	RejectBid(ctx context.Context, id int64) error
 	RejectRepresentation(ctx context.Context, id int64) (Representations, error)
+	UpdateBidStatus(ctx context.Context, arg UpdateBidStatusParams) error
 	UpdateRepresentation(ctx context.Context, arg UpdateRepresentationParams) (Representations, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, error)
 }

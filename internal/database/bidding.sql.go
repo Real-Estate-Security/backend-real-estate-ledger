@@ -111,41 +111,27 @@ func (q *Queries) ListBids(ctx context.Context, buyerID int64) ([]Bids, error) {
 	return items, nil
 }
 
-const listBidsOnListing = `-- name: ListBidsOnListing :many
+const listLatestBidOnListing = `-- name: ListLatestBidOnListing :one
 SELECT id, listing_id, buyer_id, agent_id, amount, status, created_at, previous_bid_id FROM bids
 WHERE listing_id=$1
+ORDER BY created_at DESC
+LIMIT 1
 `
 
-func (q *Queries) ListBidsOnListing(ctx context.Context, listingID int64) ([]Bids, error) {
-	rows, err := q.db.QueryContext(ctx, listBidsOnListing, listingID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Bids{}
-	for rows.Next() {
-		var i Bids
-		if err := rows.Scan(
-			&i.ID,
-			&i.ListingID,
-			&i.BuyerID,
-			&i.AgentID,
-			&i.Amount,
-			&i.Status,
-			&i.CreatedAt,
-			&i.PreviousBidID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) ListLatestBidOnListing(ctx context.Context, listingID int64) (Bids, error) {
+	row := q.db.QueryRowContext(ctx, listLatestBidOnListing, listingID)
+	var i Bids
+	err := row.Scan(
+		&i.ID,
+		&i.ListingID,
+		&i.BuyerID,
+		&i.AgentID,
+		&i.Amount,
+		&i.Status,
+		&i.CreatedAt,
+		&i.PreviousBidID,
+	)
+	return i, err
 }
 
 const rejectBid = `-- name: RejectBid :exec
@@ -156,5 +142,21 @@ WHERE id=$1
 
 func (q *Queries) RejectBid(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, rejectBid, id)
+	return err
+}
+
+const updateBidStatus = `-- name: UpdateBidStatus :exec
+UPDATE bids
+SET status = $2
+WHERE id = $1
+`
+
+type UpdateBidStatusParams struct {
+	ID     int64     `json:"id"`
+	Status BidStatus `json:"status"`
+}
+
+func (q *Queries) UpdateBidStatus(ctx context.Context, arg UpdateBidStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateBidStatus, arg.ID, arg.Status)
 	return err
 }

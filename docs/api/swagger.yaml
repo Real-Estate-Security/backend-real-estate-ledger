@@ -162,12 +162,9 @@ definitions:
     type: object
   server.listBidsRequest:
     properties:
-      BuyerID:
-        type: integer
       Username:
         type: string
     required:
-    - BuyerID
     - Username
     type: object
   server.listingResponse:
@@ -263,6 +260,16 @@ definitions:
     - client_username
     - end_date
     - start_date
+    type: object
+  server.updateBidStatusRequest:
+    properties:
+      BidId:
+        type: integer
+      NewStatus:
+        type: string
+    required:
+    - BidId
+    - NewStatus
     type: object
   server.userMeResponse:
     properties:
@@ -553,13 +560,13 @@ paths:
       summary: given user, list all bid with them as buyer
       tags:
       - bidding
-  /bidding/listBidsOnListing:
+  /bidding/listLatestBidOnListing:
     post:
       consumes:
       - application/json
-      description: listing all bids with a given listing
+      description: listing most recent bid on a listing
       parameters:
-      - description: listing all bids that have a specific listing
+      - description: listing most recent bid on a specific listing
         in: body
         name: listingID
         required: true
@@ -569,11 +576,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: list of bids
+          description: bid
           schema:
-            items:
-              $ref: '#/definitions/server.listBidResponse'
-            type: array
+            $ref: '#/definitions/server.listBidResponse'
         "400":
           description: Bad Request
           schema:
@@ -582,7 +587,7 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-      summary: given listing, list all bids with that as the listing
+      summary: given listing, list most recent bid on a listing
       tags:
       - bidding
   /bidding/rejectBid:
@@ -613,6 +618,38 @@ paths:
           schema:
             type: string
       summary: reject a bid
+      tags:
+      - bidding
+  /bidding/updateBidStatus:
+    post:
+      consumes:
+      - application/json
+      description: update a bid's status
+      parameters:
+      - description: update a bid status
+        in: body
+        name: updateBidStatusRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.updateBidStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: update a bid's status
       tags:
       - bidding
   /health:

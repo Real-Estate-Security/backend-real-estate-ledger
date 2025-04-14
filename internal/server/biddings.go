@@ -5,8 +5,10 @@ import (
 	"backend_real_estate/internal/token"
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 type createBidRequest struct {
@@ -18,7 +20,6 @@ type createBidRequest struct {
 }
 
 type listBidsRequest struct {
-	BuyerID  int64  `json:"BuyerID" binding:"required"`
 	Username string `json:"Username" binding:"required,alphanum"`
 }
 
@@ -28,6 +29,11 @@ type listBidsOnListingRequest struct {
 
 type rejectBidRequest struct {
 	ID int64 `json:"ID" binding:"required"`
+}
+
+type updateBidStatusRequest struct {
+	BidId     int64  `json:"BidId" binding:"required"`
+	NewStatus string `json:"NewStatus" binding:"required"`
 }
 
 type bidResponse struct {
@@ -135,7 +141,7 @@ func (s *Server) listBidsHandler(c *gin.Context) {
 	// Get the agent's username from the authorization payload
 	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
 
-	if authPayload== nil {
+	if authPayload == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization payload"})
 		return
 	}
@@ -166,49 +172,45 @@ func (s *Server) listBidsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// listBidsOnListingHandler handles the request for listing all bids belonging to a given buyer
+// ListLatestBidOnListingHandler handles the request for listing most recent bid on a listing
 //
-// @Summary given listing, list all bids with that as the listing
-// @Description listing all bids with a given listing
+// @Summary given listing, list most recent bid on a listing
+// @Description listing most recent bid on a listing
 // @Tags bidding
 // @Accept json
 // @Produce json
-// @Param listingID body listBidsOnListingRequest true "listing all bids that have a specific listing"
-// @Success 200 {array} listBidResponse "list of bids"
+// @Param listingID body listBidsOnListingRequest true "listing most recent bid on a specific listing"
+// @Success 200 {object} listBidResponse "bid"
 // @Failure 400 {object} string
 // @Failure 500 {object} string
-// @Router /bidding/listBidsOnListing [post]
-func (s *Server) listBidsOnListingHandler(c *gin.Context) {
+// @Router /bidding/listLatestBidOnListing [post]
+func (s *Server) ListLatestBidOnListingHandler(c *gin.Context) {
 	var req listBidsOnListingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	var bidList []database.Bids
+	var bidList database.Bids
 
 	// Fetch representations based on the user's role
 
-	bidList, err := s.dbService.ListBidsOnListing(c, req.ListingID)
+	bidList, err := s.dbService.ListLatestBidOnListing(c, req.ListingID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	// Convert database.Representations to RepresentationsWithNullableTime
-	var response []listBidResponse
-
-	for _, r := range bidList {
-		response = append(response, listBidResponse{
-			ID:            r.ID,
-			ListingID:     r.ListingID,
-			AgentID:       r.AgentID,
-			BuyerID:       r.BuyerID,
-			Amount:        r.Amount,
-			PreviousBidID: r.PreviousBidID.Int64,
-			Status:        string(r.Status),
-		})
+	
+	var response = listBidResponse{
+		ID:            bidList.ID,
+		ListingID:     bidList.ListingID,
+		AgentID:       bidList.AgentID,
+		BuyerID:       bidList.BuyerID,
+		Amount:        bidList.Amount,
+		PreviousBidID: bidList.PreviousBidID.Int64,
+		Status:        string(bidList.Status),
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -270,4 +272,56 @@ func (s *Server) acceptBidHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, bidID)
+}
+
+// updateBidStatusHandler handles the request to update a bid's status
+//
+// @Summary update a bid's status
+// @Description update a bid's status
+// @Tags bidding
+// @Accept json
+// @Produce json
+// @Param updateBidStatusRequest body updateBidStatusRequest true "update a bid status"
+// @Success 200 {object} string
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /bidding/updateBidStatus [post]
+// @Security BearerAuth
+func (s *Server) updateBidStatusHandler(c *gin.Context) {
+	var req updateBidStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if authPayload == nil {
+		log.Info().Msg("listBidsHandler 03 authPayload is null")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization payload"})
+		return
+	}
+
+	if authPayload != nil {
+		log.Info().Msg("listBidsHandler 05 authPayload is not null: authPayload.ExpiredAt=" + string(authPayload.ExpiredAt.GoString()))
+	}
+
+	if authPayload.ExpiredAt.Before(time.Now()) {
+		log.Info().Msg("listBidsHandler 06 authPayload is expired")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token has expired"})
+		return
+	}
+
+	params := database.UpdateBidStatusParams{
+		ID:     req.BidId,
+		Status: database.BidStatus(req.NewStatus),
+	}
+
+	err := s.dbService.UpdateBidStatus(c, params)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, req.BidId)
 }

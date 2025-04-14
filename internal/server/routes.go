@@ -66,9 +66,10 @@ func (server *Server) RegisterRoutes() {
 	router.POST("/listing/getListingByPropertyID", server.getListingByPropertyIDHandler)
 	router.POST("/bidding/createBid", server.createBidHandler)
 	authRoutes.POST("/bidding/listBids", server.listBidsHandler)
+	authRoutes.POST("/bidding/updateBidStatus", server.updateBidStatusHandler)
 	router.PUT("/bidding/rejectBid", server.rejectBidHandler)
 	router.PUT("/bidding/acceptBid", server.acceptBidHandler)
-	router.POST("bidding/listBidsOnListing", server.listBidsOnListingHandler)
+	router.POST("bidding/listLatestBidOnListing", server.ListLatestBidOnListingHandler)
 	// user routes protected
 	
 	authRoutes.GET("/user/me", server.UserMeHandler)
