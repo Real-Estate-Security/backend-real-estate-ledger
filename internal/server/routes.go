@@ -36,13 +36,14 @@ func (server *Server) RegisterRoutes() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:4173"}, // Add your frontend URL
+		AllowOrigins:     []string{"http://localhost:4173/", "http://localhost:5173/","http://localhost:5173", "http://127.0.0.1:4173/", "http://127.0.0.1:4173", "http://127.0.0.1:5173/", "http://127.0.0.1:5173"}, // Add your frontend URL
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
 	docs.SwaggerInfo.BasePath = "/"
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	// set base path for swagger
 
 	// general health check routes
@@ -65,12 +66,13 @@ func (server *Server) RegisterRoutes() {
 	router.POST("/property/getPropertyByID", server.getPropertyByIDHandler)
 	router.POST("/listing/getListingByPropertyID", server.getListingByPropertyIDHandler)
 	router.POST("/bidding/createBid", server.createBidHandler)
-	router.POST("/bidding/listBids", server.listBidsHandler)
+	authRoutes.POST("/bidding/listBids", server.listBidsHandler)
+	authRoutes.POST("/bidding/updateBidStatus", server.updateBidStatusHandler)
 	router.PUT("/bidding/rejectBid", server.rejectBidHandler)
 	router.PUT("/bidding/acceptBid", server.acceptBidHandler)
-	router.POST("bidding/listBidsOnListing", server.listBidsOnListingHandler)
+	router.POST("bidding/listLatestBidOnListing", server.ListLatestBidOnListingHandler)
 	// user routes protected
-	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	
 	authRoutes.GET("/user/me", server.UserMeHandler)
 
 	// properties/listings routes 

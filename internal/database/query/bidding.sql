@@ -24,9 +24,11 @@ RETURNING *;
 SELECT * FROM bids
 WHERE buyer_id=$1;
 
--- name: ListBidsOnListing :many
+-- name: ListLatestBidOnListing :one
 SELECT * FROM bids
-WHERE listing_id=$1;
+WHERE listing_id=$1
+ORDER BY created_at DESC
+LIMIT 1;
 
 -- name: RejectBid :exec
 UPDATE bids
@@ -36,4 +38,9 @@ WHERE id=$1;
 -- name: AcceptBid :exec
 UPDATE bids
 SET status = 'accepted'
+WHERE id = $1;
+
+-- name: UpdateBidStatus :exec
+UPDATE bids
+SET status = $2
 WHERE id = $1;

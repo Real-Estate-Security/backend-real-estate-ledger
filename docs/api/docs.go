@@ -354,6 +354,11 @@ const docTemplate = `{
         },
         "/bidding/listBids": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "listing all bids belonging to a given buyer",
                 "consumes": [
                     "application/json"
@@ -401,9 +406,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/bidding/listBidsOnListing": {
+        "/bidding/listLatestBidOnListing": {
             "post": {
-                "description": "listing all bids with a given listing",
+                "description": "listing most recent bid on a listing",
                 "consumes": [
                     "application/json"
                 ],
@@ -413,10 +418,10 @@ const docTemplate = `{
                 "tags": [
                     "bidding"
                 ],
-                "summary": "given listing, list all bids with that as the listing",
+                "summary": "given listing, list most recent bid on a listing",
                 "parameters": [
                     {
-                        "description": "listing all bids that have a specific listing",
+                        "description": "listing most recent bid on a specific listing",
                         "name": "listingID",
                         "in": "body",
                         "required": true,
@@ -427,12 +432,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "list of bids",
+                        "description": "bid",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/server.listBidResponse"
-                            }
+                            "$ref": "#/definitions/server.listBidResponse"
                         }
                     },
                     "400": {
@@ -471,6 +473,57 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/server.rejectBidRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/bidding/updateBidStatus": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "update a bid's status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bidding"
+                ],
+                "summary": "update a bid's status",
+                "parameters": [
+                    {
+                        "description": "update a bid status",
+                        "name": "updateBidStatusRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.updateBidStatusRequest"
                         }
                     }
                 ],
@@ -1146,13 +1199,9 @@ const docTemplate = `{
         "server.listBidsRequest": {
             "type": "object",
             "required": [
-                "BuyerID",
                 "Username"
             ],
             "properties": {
-                "BuyerID": {
-                    "type": "integer"
-                },
                 "Username": {
                     "type": "string"
                 }
@@ -1333,6 +1382,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.updateBidStatusRequest": {
+            "type": "object",
+            "required": [
+                "BidId",
+                "NewStatus"
+            ],
+            "properties": {
+                "BidId": {
+                    "type": "integer"
+                },
+                "NewStatus": {
                     "type": "string"
                 }
             }

@@ -30,7 +30,7 @@ type Querier interface {
 	GetUserByUsername(ctx context.Context, username string) (Users, error)
 	GetUserIDByEmail(ctx context.Context, email string) (int64, error)
 	ListBids(ctx context.Context, buyerID int64) ([]Bids, error)
-	ListBidsOnListing(ctx context.Context, listingID int64) ([]Bids, error)
+	ListLatestBidOnListing(ctx context.Context, listingID int64) (Bids, error)
 	ListListings(ctx context.Context) ([]Listings, error)
 	ListProperties(ctx context.Context) ([]Properties, error)
 	ListRepresentationsByAgentID(ctx context.Context, arg ListRepresentationsByAgentIDParams) ([]ListRepresentationsByAgentIDRow, error)
@@ -38,6 +38,7 @@ type Querier interface {
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error)
 	RejectBid(ctx context.Context, id int64) error
 	RejectRepresentation(ctx context.Context, id int64) (Representations, error)
+	UpdateBidStatus(ctx context.Context, arg UpdateBidStatusParams) error
 	UpdateListingAcceptedBidID(ctx context.Context, arg UpdateListingAcceptedBidIDParams) (Listings, error)
 	UpdateListingPrice(ctx context.Context, arg UpdateListingPriceParams) (Listings, error)
 	UpdateListingStatus(ctx context.Context, arg UpdateListingStatusParams) (Listings, error)
