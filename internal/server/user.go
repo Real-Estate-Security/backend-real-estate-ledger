@@ -86,7 +86,7 @@ func (s *Server) CreateUserHandler(c *gin.Context) {
 }
 
 type loginUserRequest struct {
-	Username string `json:"username" binding:"required,alphanum"`
+	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
@@ -115,7 +115,16 @@ func (s *Server) LoginUserHandler(c *gin.Context) {
 		return
 	}
 
-	user, err := s.dbService.GetUserByUsername(c, req.Username)
+	var user database.Users
+	var err error
+
+	// Check if the input is an email or username
+	if util.IsEmail(req.Username) {
+		user, err = s.dbService.GetUserByEmail(c, req.Username)
+	} else {
+		user, err = s.dbService.GetUserByUsername(c, req.Username)
+	}
+
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
