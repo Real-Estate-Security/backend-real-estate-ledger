@@ -4,7 +4,9 @@ import (
 	"backend_real_estate/internal/database"
 	"backend_real_estate/internal/token"
 	"database/sql"
+	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +35,7 @@ type rejectBidRequest struct {
 
 type updateBidStatusRequest struct {
 	BidId     int64  `json:"BidId" binding:"required"`
+	ListingID int64  `json:"ListingID" binding:"required"`
 	NewStatus string `json:"NewStatus" binding:"required"`
 }
 
@@ -103,6 +106,22 @@ func (s *Server) createBidHandler(c *gin.Context) {
 	bid, err := s.dbService.CreateBid(c, dbParam)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	listing, err := s.dbService.GetListingByID(c, bid.ListingID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	network := s.gwService.GetNetwork("mychannel")
+	contract := network.GetContract("realestatesec")
+
+	_, err = contract.SubmitTransaction("PlaceBid", strconv.FormatInt(listing.PropertyID, 10), strconv.FormatInt(bid.ID, 10), bid.Amount, strconv.FormatInt(bid.BuyerID, 10), strconv.FormatInt(bid.AgentID, 10))
+	if err != nil {
+		fmt.Print(err)
+		c.JSON(http.StatusInternalServerError, "Could not place bid")
 		return
 	}
 
@@ -202,7 +221,6 @@ func (s *Server) ListLatestBidOnListingHandler(c *gin.Context) {
 		return
 	}
 
-	
 	var response = listBidResponse{
 		ID:            bidList.ID,
 		ListingID:     bidList.ListingID,
@@ -320,6 +338,22 @@ func (s *Server) updateBidStatusHandler(c *gin.Context) {
 	err := s.dbService.UpdateBidStatus(c, params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	listing, err := s.dbService.GetListingByID(c, req.ListingID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	//update ledger
+	network := s.gwService.GetNetwork("mychannel")
+	contract := network.GetContract("realestatesec")
+
+	_, err = contract.SubmitTransaction("UpdateBid", strconv.FormatInt(listing.PropertyID, 10), strconv.FormatInt(req.BidId, 10), req.NewStatus)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Could not update bid status")
 		return
 	}
 
