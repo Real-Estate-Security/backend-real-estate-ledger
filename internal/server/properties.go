@@ -1,32 +1,32 @@
 package server
 
-import(
+import (
 	db "backend_real_estate/internal/database"
-	"net/http"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-
+	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type createListingRequest struct {
-	OwnerFirstName string  `json:"OwnerFirstName" binding:"required,alphanum"`
-	OwnerLastName  string  `json:"OwnerLastName" binding:"required,alphanum"`
-	OwnerEmail     string  `json:"OwnerEmail" binding:"required,email"`
-	AgentFirstName string  `json:"AgentFirstName"`
-	AgentLastName  string  `json:"AgentLastName"`
-	AgentEmail     string  `json:"AgentEmail" binding:"required,email"`
+	OwnerFirstName string `json:"OwnerFirstName" binding:"required,alphanum"`
+	OwnerLastName  string `json:"OwnerLastName" binding:"required,alphanum"`
+	OwnerEmail     string `json:"OwnerEmail" binding:"required,email"`
+	AgentFirstName string `json:"AgentFirstName"`
+	AgentLastName  string `json:"AgentLastName"`
+	AgentEmail     string `json:"AgentEmail" binding:"required,email"`
 	Price          string `json:"Price" binding:"required"`
-	Address        string  `json:"Address" binding:"required"`
-	City           string  `json:"City" binding:"required"`
-	State          string  `json:"State" binding:"required"`
+	Address        string `json:"Address" binding:"required"`
+	City           string `json:"City" binding:"required"`
+	State          string `json:"State" binding:"required"`
 	Zipcode        int32  `json:"Zipcode" binding:"required"`
-	Bedrooms       int     `json:"Bedrooms" binding:"required"`
-	Bathrooms      int     `json:"Bathrooms" binding:"required"`
-	Description    string  `json:"Description"`
+	Bedrooms       int    `json:"Bedrooms" binding:"required"`
+	Bathrooms      int    `json:"Bathrooms" binding:"required"`
+	Description    string `json:"Description"`
 }
 
 // CreatePropertyAndListingHandler handles the request for creating a listing for a property
@@ -37,7 +37,7 @@ type createListingRequest struct {
 // @Accept json
 // @Produce json
 // @Param createListingRequest body createListingRequest true "creating a listing for a property"
-// @Success 200 {object} string 
+// @Success 200 {object} string
 // @Failure 400 {object} string
 // @Failure 500 {object} string
 // @Router /properties [post]
@@ -57,12 +57,22 @@ func (s *Server) CreatePropertyAndListingHandler(c *gin.Context) {
 		return
 	}
 
+	//commit to ledger
+	network := s.gwService.GetNetwork("mychannel")
+	contract := network.GetContract("realestatesec")
+
+	_, err = contract.SubmitTransaction("RegisterProperty", strconv.FormatInt(listing.PropertyID, 10), req.Address, req.OwnerFirstName+" "+req.OwnerLastName, req.AgentFirstName+" "+req.AgentLastName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Could not register property")
+		return
+	}
+
 	c.JSON(http.StatusCreated, listing)
 }
 
 func (s *Server) CreateOrUsePropertyAndThenCreateListing(ctx context.Context, req createListingRequest) (db.Listings, error) {
 	//Try getting existing property (see if property already exists)
-//var emptyResponse db.Listings
+	//var emptyResponse db.Listings
 	property, err := s.dbService.GetPropertyByAddress(ctx, req.Address)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return db.Listings{}, fmt.Errorf("check property: %w", err)
@@ -75,7 +85,7 @@ func (s *Server) CreateOrUsePropertyAndThenCreateListing(ctx context.Context, re
 			return db.Listings{}, fmt.Errorf("get owner ID: %w", er)
 		}
 		property, err = s.dbService.CreateProperty(ctx, db.CreatePropertyParams{
-			Owner:   ownerID,
+			Owner:     ownerID,
 			Address:   req.Address,
 			City:      req.City,
 			State:     req.State,
@@ -95,7 +105,7 @@ func (s *Server) CreateOrUsePropertyAndThenCreateListing(ctx context.Context, re
 	// Create listing
 	listing, err := s.dbService.CreateListing(ctx, db.CreateListingParams{
 		PropertyID: property.ID,
-		AgentID:  agentID,
+		AgentID:    agentID,
 		Price:      req.Price,
 		Description: sql.NullString{
 			String: req.Description,
@@ -108,8 +118,6 @@ func (s *Server) CreateOrUsePropertyAndThenCreateListing(ctx context.Context, re
 
 	return listing, nil
 }
-
-
 
 type getPropertyByIDRequest struct {
 	PropertyID int64  `json:"PropertyID" binding:"required"`
