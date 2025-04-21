@@ -333,6 +333,16 @@ definitions:
     - end_date
     - start_date
     type: object
+  server.updateAcceptedBidIdByListingIdRequest:
+    properties:
+      AcceptedBidId:
+        type: integer
+      ListId:
+        type: integer
+    required:
+    - AcceptedBidId
+    - ListId
+    type: object
   server.updateBidStatusRequest:
     properties:
       BidId:
@@ -805,6 +815,38 @@ paths:
           schema:
             type: string
       summary: get listing by property id
+      tags:
+      - listing
+  /listing/updateAcceptedBidIdByListingId:
+    post:
+      consumes:
+      - application/json
+      description: update accepted bid id for a given listing id
+      parameters:
+      - description: update accepted bid id for a given listing id
+        in: body
+        name: updateAcceptedBidIdByListingIdRequest
+        required: true
+        schema:
+          $ref: '#/definitions/server.updateAcceptedBidIdByListingIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: update accepted bid id for a given listing id
       tags:
       - listing
   /properties:

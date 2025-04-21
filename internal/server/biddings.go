@@ -35,7 +35,6 @@ type rejectBidRequest struct {
 
 type updateBidStatusRequest struct {
 	BidId     int64  `json:"BidId" binding:"required"`
-	ListingID int64  `json:"ListingID" binding:"required"`
 	NewStatus string `json:"NewStatus" binding:"required"`
 }
 
@@ -315,17 +314,13 @@ func (s *Server) updateBidStatusHandler(c *gin.Context) {
 	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
 
 	if authPayload == nil {
-		log.Info().Msg("listBidsHandler 03 authPayload is null")
+		log.Info().Msg("updateBidStatusHandler 03 authPayload is null")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization payload"})
 		return
 	}
 
-	if authPayload != nil {
-		log.Info().Msg("listBidsHandler 05 authPayload is not null: authPayload.ExpiredAt=" + string(authPayload.ExpiredAt.GoString()))
-	}
-
 	if authPayload.ExpiredAt.Before(time.Now()) {
-		log.Info().Msg("listBidsHandler 06 authPayload is expired")
+		log.Info().Msg("updateBidStatusHandler 06 authPayload is expired")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token has expired"})
 		return
 	}
@@ -341,21 +336,6 @@ func (s *Server) updateBidStatusHandler(c *gin.Context) {
 		return
 	}
 
-	listing, err := s.dbService.GetListingByID(c, req.ListingID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	//update ledger
-	network := s.gwService.GetNetwork("mychannel")
-	contract := network.GetContract("realestatesec")
-
-	_, err = contract.SubmitTransaction("UpdateBid", strconv.FormatInt(listing.PropertyID, 10), strconv.FormatInt(req.BidId, 10), req.NewStatus)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Could not update bid status")
-		return
-	}
-
 	c.JSON(http.StatusOK, req.BidId)
 }
+

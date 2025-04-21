@@ -676,6 +676,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/listing/updateAcceptedBidIdByListingId": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "update accepted bid id for a given listing id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "listing"
+                ],
+                "summary": "update accepted bid id for a given listing id",
+                "parameters": [
+                    {
+                        "description": "update accepted bid id for a given listing id",
+                        "name": "updateAcceptedBidIdByListingIdRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.updateAcceptedBidIdByListingIdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/properties": {
             "post": {
                 "description": "creating a listing for a property",
@@ -1383,6 +1434,21 @@ const docTemplate = `{
                 },
                 "start_date": {
                     "type": "string"
+                }
+            }
+        },
+        "server.updateAcceptedBidIdByListingIdRequest": {
+            "type": "object",
+            "required": [
+                "AcceptedBidId",
+                "ListId"
+            ],
+            "properties": {
+                "AcceptedBidId": {
+                    "type": "integer"
+                },
+                "ListId": {
+                    "type": "integer"
                 }
             }
         },
