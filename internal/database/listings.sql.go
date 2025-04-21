@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
 
 const getListingByPropertyID = `-- name: GetListingByPropertyID :one
@@ -28,4 +29,21 @@ func (q *Queries) GetListingByPropertyID(ctx context.Context, propertyID int64) 
 		&i.AcceptedBidID,
 	)
 	return i, err
+}
+
+const updateAcceptedBidIdByListingId = `-- name: UpdateAcceptedBidIdByListingId :exec
+UPDATE listings 
+SET 
+    accepted_bid_id = $1
+WHERE id = $2
+`
+
+type UpdateAcceptedBidIdByListingIdParams struct {
+	AcceptedBidID sql.NullInt64 `json:"accepted_bid_id"`
+	ID            int64         `json:"id"`
+}
+
+func (q *Queries) UpdateAcceptedBidIdByListingId(ctx context.Context, arg UpdateAcceptedBidIdByListingIdParams) error {
+	_, err := q.db.ExecContext(ctx, updateAcceptedBidIdByListingId, arg.AcceptedBidID, arg.ID)
+	return err
 }

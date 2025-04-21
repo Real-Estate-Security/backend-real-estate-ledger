@@ -38,6 +38,7 @@ type Querier interface {
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error)
 	RejectBid(ctx context.Context, id int64) error
 	RejectRepresentation(ctx context.Context, id int64) (Representations, error)
+	UpdateAcceptedBidIdByListingId(ctx context.Context, arg UpdateAcceptedBidIdByListingIdParams) error
 	UpdateBidStatus(ctx context.Context, arg UpdateBidStatusParams) error
 	UpdateListingAcceptedBidID(ctx context.Context, arg UpdateListingAcceptedBidIDParams) (Listings, error)
 	UpdateListingPrice(ctx context.Context, arg UpdateListingPriceParams) (Listings, error)

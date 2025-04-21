@@ -68,6 +68,7 @@ func (server *Server) RegisterRoutes() {
 	router.POST("/bidding/createBid", server.createBidHandler)
 	authRoutes.POST("/bidding/listBids", server.listBidsHandler)
 	authRoutes.POST("/bidding/updateBidStatus", server.updateBidStatusHandler)
+	authRoutes.POST("/listing/updateAcceptedBidIdByListingId", server.updateAcceptedBidIdByListingIdHandler)
 	router.PUT("/bidding/rejectBid", server.rejectBidHandler)
 	router.PUT("/bidding/acceptBid", server.acceptBidHandler)
 	router.POST("bidding/listLatestBidOnListing", server.ListLatestBidOnListingHandler)
